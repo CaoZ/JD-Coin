@@ -1,0 +1,101 @@
+<div class="borderBottom box plr15">
+    <p class="size16 ptb10 pl10 font-bold pr boxItem"><span class="titleIcon abs-lm"></span>做任务有钱赚</p>
+
+    <p class="ta-r size12 pt14 pr15 pr">
+            </p>
+</div>
+<div class="mlr15">
+            <div class="borderBottom  box pr">
+            <div class="exchangeCoinIcon"></div>
+            <div class="pt15 boxItem">
+                <p class="size16">打卡
+                                       <a href="javascript:void(0);" class="jobInfo" prizesDetail=" 用户连续7天打卡即可领取1钢镚。8月8日10点起，钢镚领取需是金融实名且办理小白卡的用户。"><span class="info"></span></a>
+                                   </p>
+
+                <p class="size12 userTxtGrey">连续打卡7次送1钢镚</p>
+            </div>
+            <div class="getGift canGet abs-rm  recPrize "
+                 prizesCfgId="82"  clstag="jr|keycount|jrxbk_bz|rwlq">
+                                    领取
+                            </div>
+        </div>
+            <div class="  box pr">
+            <div class="exchangeCoinIcon"></div>
+            <div class="pt15 boxItem">
+                <p class="size16">成功办理小白卡
+                                       <a href="javascript:void(0);" class="jobInfo" prizesDetail=" 5月20日-12月31日期间，凡申请并审核通过的小白卡用户，每个ID限送1钢镚。钢镚返还将在银行核卡通过后的7个工作日内直充到账。"><span class="info"></span></a>
+                                   </p>
+
+                <p class="size12 userTxtGrey">5月20日后核卡成功，每人限送1钢镚</p>
+            </div>
+            <div class="getGift canGet abs-rm  recPrize "
+                 prizesCfgId="86"  clstag="jr|keycount|jrxbk_bz|rwlq">
+                                    领取
+                            </div>
+        </div>
+    </div>
+<script>
+    Zepto(function ($) {
+        var recFlag=false;
+        $('.recPrize').on('click', function () {
+            if(!recFlag){
+                var me=$(this);
+                var prizesCfgId = me.attr('prizesCfgId');
+                if (prizesCfgId == null) {
+                    return false;
+                }
+                recFlag=true;
+                Zepto.ajax({
+                    url: '/m/money/home/recDoJobMoney.html?pcId=' + prizesCfgId,
+                    type: 'GET',
+                    dataType: 'json',
+                    complete:function(){
+                        recFlag=false;
+                    },
+                    success: function (doJobRes) {
+                        if (!checkLogin(doJobRes)) {
+                            return false;
+                        }
+                        if (doJobRes.success) {
+                            me.addClass('got');
+                            me.removeClass('recPrize');
+                            me.off('click');
+                            me.html('已领取')
+                            moneyDialog({dT1: ['领取成功'], cancel: '知道了'})
+                        } else {
+                            if(doJobRes.resultCode=='apply_suc'){
+                                moneyDialog({
+                                    dT1: [doJobRes.resultMessage], cancel: '我知道了', sure: '立即申请', sureFn: function () {
+                                        location.href = "/m";
+                                    }
+                                })
+                            }else if(doJobRes.resultCode=='handle_suc'){
+                                moneyDialog({
+                                    dT1: [doJobRes.resultMessage], cancel: '我知道了', sure: '查看进度', sureFn: function () {
+                                        location.href = "/m/card/wapCitic/result.html";
+                                    }
+                                })
+                            }else{
+                                commonFailDia(doJobRes.resultCode, doJobRes.resultMessage,'')
+                            }
+
+                        }
+
+                    }
+                })
+            }
+        });
+
+        $('.jobInfo').on('click', function () {
+            var prizesDetail=$(this).attr("prizesDetail");
+            if(prizesDetail!=null&&prizesDetail!=''){
+                moneyDialog({dT1: [prizesDetail], cancel: '知道了'})
+            }
+        })
+
+    })
+</script>
+
+
+
+
