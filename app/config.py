@@ -36,7 +36,7 @@ def load_config():
     args = parser.parse_args()
 
     config_name = args.config or 'config.json'
-    print('# 使用配置文件 "{}".\n'.format(config_name))
+    print('# 使用配置文件 "{}".'.format(config_name))
 
     try:
         # 略坑, Path.resolve() 在 3.5 和 3.6 上表现不一致... 若文件不存在 3.5 直接抛异常, 而 3.6
