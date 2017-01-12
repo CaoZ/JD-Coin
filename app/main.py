@@ -1,5 +1,6 @@
 import requests
 
+from config import config
 from job import jobs_all
 
 
@@ -33,6 +34,9 @@ def main():
 
 
 def debug_patch():
+    """
+    不验证 HTTPS 证书, 便于使用代理工具进行网络调试...
+    """
     from requests import Session
 
     class XSession(Session):
@@ -44,5 +48,7 @@ def debug_patch():
 
 
 if __name__ == '__main__':
-    debug_patch()
+    if config.debug:
+        debug_patch()
+
     main()

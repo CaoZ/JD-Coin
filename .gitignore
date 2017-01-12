@@ -92,3 +92,8 @@ ENV/
 
 # IDE / Editors
 .idea/
+
+#############################################
+
+/conf/
+!/conf/config.default.json

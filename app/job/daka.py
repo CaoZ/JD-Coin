@@ -3,8 +3,8 @@ import time
 import traceback
 from urllib.parse import urlparse, parse_qs
 
-import config
 import util
+from config import config
 from qq import JDQQ
 from qqlib import LogInError
 
