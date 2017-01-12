@@ -12,11 +12,11 @@ from qqlib import LogInError
 class Daka:
     job_name = '小白卡钢镚打卡'
 
-    index_url = 'https://bk.jd.com/m/money/index.html'
+    index_url = 'http://bk.jd.com/m/channel/login/daka.html'
     login_url = 'https://plogin.m.jd.com/cgi-bin/m/qqlogin'
-    sign_url = 'https://bk.jd.com/m/money/home/daka.html'
-    test_url = 'https://bk.jd.com/m/money/home/getUserInfo.html'
-    job_gb_url = 'https://bk.jd.com/m/money/home/recDoJobMoney.html?pcId=82'
+    sign_url = 'http://bk.jd.com/m/channel/login/clock.html'
+    test_url = index_url
+    job_gb_url = 'http://bk.jd.com/m/channel/login/recDakaGb.html'
 
     def __init__(self, session):
         self.session = session
@@ -50,9 +50,9 @@ class Daka:
         print('##### Job End.')
 
     def is_login(self):
-        r = self.session.get(self.test_url)
+        r = self.session.get(self.test_url, allow_redirects=False)
 
-        if r.history and '/login' in r.url:
+        if r.is_redirect and 'passport' in r.headers['Location']:
             return False
         else:
             return True
@@ -128,7 +128,7 @@ class Daka:
 
         if r.ok:
             sign_pattern = r'dakaed:\s*(\w+)'
-            days_pattern = r'dakaNum:\s*(\d+)'
+            days_pattern = r'dakaNumber:\s*(\d+)'
 
             try:
                 signed = ('true' == util.find_value(sign_pattern, r.text))
