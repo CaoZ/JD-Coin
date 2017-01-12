@@ -1,3 +1,6 @@
+import logging
+import traceback
+
 import requests
 
 from config import config
@@ -15,7 +18,12 @@ def main():
 
     for job_class in jobs_all:
         job = job_class(session)
-        job.run()
+
+        try:
+            job.run()
+        except Exception as e:
+            logging.error('# 任务运行出错: ' + repr(e))
+            traceback.print_exc()
 
         if not job.job_success:
             failed_jobs.append(job.job_name)
