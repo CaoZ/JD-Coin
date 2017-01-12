@@ -1,5 +1,7 @@
 import logging
+import pickle
 import traceback
+from pathlib import Path
 
 import requests
 
@@ -8,11 +10,9 @@ from job import jobs_all
 
 
 def main():
-    session = requests.Session()
+    session = make_session()
 
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'
-    })
+    print()  # 空一行...
 
     failed_jobs = []
 
@@ -39,6 +39,38 @@ def main():
         print('= 全部成功 ~')
 
     print('=================================')
+
+    save_session(session)
+
+
+def make_session():
+    session = requests.Session()
+
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'
+    })
+
+    data_file = Path(__file__).parent.joinpath('../data/cookies')
+
+    if data_file.exists():
+        try:
+            bytes = data_file.read_bytes()
+            cookies = pickle.loads(bytes)
+            session.cookies = cookies
+            print('# 从文件加载 cookies 成功.')
+        except Exception as e:
+            print('# 未能成功载入 cookies, 从头开始~')
+
+    return session
+
+
+def save_session(session):
+    data = pickle.dumps(session.cookies)
+
+    data_dir = Path(__file__).parent.joinpath('../data/')
+    data_dir.mkdir(exist_ok=True)
+    data_file = data_dir.joinpath('cookies')
+    data_file.write_bytes(data)
 
 
 def debug_patch():

@@ -97,3 +97,5 @@ ENV/
 
 /conf/
 !/conf/config.default.json
+
+/data/
