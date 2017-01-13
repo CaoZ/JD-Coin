@@ -12,11 +12,11 @@ from qqlib import LogInError
 class Daka:
     job_name = '小白卡钢镚打卡'
 
-    index_url = 'http://bk.jd.com/m/channel/login/daka.html'
+    index_url = 'https://bk.jd.com/m/channel/login/daka.html'
     login_url = 'https://plogin.m.jd.com/cgi-bin/m/qqlogin'
-    sign_url = 'http://bk.jd.com/m/channel/login/clock.html'
+    sign_url = 'https://bk.jd.com/m/channel/login/clock.html'
     test_url = index_url
-    job_gb_url = 'http://bk.jd.com/m/channel/login/recDakaGb.html'
+    job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
 
     def __init__(self, session):
         self.session = session

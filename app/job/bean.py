@@ -9,7 +9,7 @@ class Bean(Daka):
     info_url = 'https://vip.jd.com/member/getUserInfo.html'
     login_url = 'https://qq.jd.com/new/qq/login.aspx'
     sign_url = 'https://vip.jd.com/common/signin.html'
-    test_url = 'http://vip.jd.com/member/myJingBean/index.html'
+    test_url = 'https://vip.jd.com/member/myJingBean/index.html'
 
     def login_data(self):
         return {'ReturnUrl': self.test_url}
