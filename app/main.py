@@ -1,4 +1,5 @@
 import logging
+import os
 import pickle
 import traceback
 from pathlib import Path
@@ -73,22 +74,25 @@ def save_session(session):
     data_file.write_bytes(data)
 
 
-def debug_patch():
+def proxy_patch():
     """
-    不验证 HTTPS 证书, 便于使用代理工具进行网络调试...
+    Requests 似乎不能使用系统的证书系统, 方便起见, 不验证 HTTPS 证书, 便于使用代理工具进行网络调试...
+    http://docs.python-requests.org/en/master/user/advanced/#ca-certificates
     """
-    from requests import Session
+    import warnings
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-    class XSession(Session):
+    class XSession(requests.Session):
         def __init__(self):
             super().__init__()
             self.verify = False
 
     requests.Session = XSession
+    warnings.simplefilter('ignore', InsecureRequestWarning)
 
 
 if __name__ == '__main__':
-    if config.debug:
-        debug_patch()
+    if config.debug and os.getenv('HTTPS_PROXY'):
+        proxy_patch()
 
     main()
