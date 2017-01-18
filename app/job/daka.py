@@ -1,8 +1,8 @@
-import logging
 import time
 import traceback
 from urllib.parse import urlparse, parse_qs
 
+import job
 import util
 from config import config
 from qq import JDQQ
@@ -17,6 +17,7 @@ class Daka:
     sign_url = 'https://bk.jd.com/m/channel/login/clock.html'
     test_url = index_url
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
+    logger = job.logger
 
     def __init__(self, session):
         self.session = session
@@ -27,19 +28,19 @@ class Daka:
         self.job_success = False
 
     def run(self):
-        print('##### Job start: {}'.format(self.job_name))
+        self.logger.info('Job start: {}'.format(self.job_name))
 
         is_login = self.is_login()
-        print('# 登录状态: {}'.format(is_login))
+        self.logger.info('登录状态: {}'.format(is_login))
 
         if not is_login:
-            print('# 进行登录...')
+            self.logger.info('进行登录...')
             try:
                 self.login()
                 is_login = True
-                print('# 登录成功')
+                self.logger.info('登录成功')
             except Exception as e:
-                print('# 登录失败: {}'.format(e))
+                self.logger.error('登录失败: {}'.format(e))
 
         if is_login:
             if self.is_signed():
@@ -47,7 +48,7 @@ class Daka:
             else:
                 self.job_success = self.sign()
 
-        print('##### Job End.')
+        self.logger.info('Job End.')
 
     def is_login(self):
         r = self.session.get(self.test_url, allow_redirects=False)
@@ -94,7 +95,7 @@ class Daka:
             self.g_tk = qq.g_tk()
 
         except LogInError as e:
-            raise LogInError('# 登录 QQ 失败: {}'.format(e))
+            raise LogInError('登录 QQ 失败: {}'.format(e))
 
     def login_jd(self):
         """
@@ -114,12 +115,12 @@ class Daka:
         last_location = urlparse(r.url)
 
         if 'jd.com' not in last_location.netloc:
-            logging.error('# 通过 QQ 登录京东失败.')
-            logging.error('## Last page url: ' + r.url)
-            logging.error('## Last page content: \n' + r.text)
+            self.logger.error('通过 QQ 登录京东失败.')
+            self.logger.error('Last page url: ' + r.url)
+            self.logger.error('Last page content: \n' + r.text)
             raise Exception('通过 QQ 登录京东失败.')
 
-        logging.debug('# 通过 QQ 登录京东成功.')
+        self.logger.info('通过 QQ 登录京东成功.')
         return True
 
     def is_signed(self):
@@ -133,10 +134,10 @@ class Daka:
             try:
                 signed = ('true' == util.find_value(sign_pattern, r.text))
                 sign_days = int(util.find_value(days_pattern, r.text))
-                print('# 今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
+                self.logger.info('今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
 
             except Exception as e:
-                logging.error('# 返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
+                self.logger.error('返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
                 traceback.print_exc()
 
         return signed
@@ -152,7 +153,7 @@ class Daka:
 
             if not sign_success and as_json['resultCode'] == '0003':
                 # 已打卡 7 次, 需要先去 "任务" 里完成领一个钢镚的任务...
-                print('# 已打卡 7 次, 去完成领钢镚任务...')
+                self.logger.info('已打卡 7 次, 去完成领钢镚任务...')
                 pick_success = self.pick_gb()
 
                 if pick_success:
@@ -162,10 +163,10 @@ class Daka:
                 else:
                     message = '钢镚领取任务未成功完成.'
 
-            print('# 打卡成功: {}; Message: {}'.format(sign_success, message))
+            self.logger.info('打卡成功: {}; Message: {}'.format(sign_success, message))
 
         else:
-            print('# 打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
+            self.logger.error('打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
 
         return sign_success
 
@@ -179,10 +180,10 @@ class Daka:
             as_json = r.json()
             pick_success = as_json['success']
             message = as_json['resultMessage']
-            print('# 钢镚领取成功: {}; Message: {}'.format(pick_success, message))
+            self.logger.info('钢镚领取成功: {}; Message: {}'.format(pick_success, message))
 
         except Exception as e:
-            logging.error('# 领钢镚 -> 钢镚领取失败: {}'.format(e))
+            self.logger.error('领钢镚 -> 钢镚领取失败: {}'.format(e))
             traceback.print_exc()
 
         return pick_success

@@ -1,13 +1,19 @@
 import argparse
 import json
+import logging
 import sys
 from base64 import b85decode
 from pathlib import Path
+
+log_format = '%(asctime)s %(name)s[%(module)s] %(levelname)s: %(message)s'
+logging.basicConfig(format=log_format, level=logging.INFO)
 
 
 class Config:
     def __init__(self):
         self.debug = False
+        self.log_format = log_format
+
         self.qq = {
             'account': '',
             'password': ''
@@ -36,7 +42,7 @@ def load_config():
     args = parser.parse_args()
 
     config_name = args.config or 'config.json'
-    print('# 使用配置文件 "{}".'.format(config_name))
+    logging.info('使用配置文件 "{}".'.format(config_name))
 
     try:
         # 略坑, Path.resolve() 在 3.5 和 3.6 上表现不一致... 若文件不存在 3.5 直接抛异常, 而 3.6

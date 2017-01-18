@@ -13,8 +13,6 @@ from job import jobs_all
 def main():
     session = make_session()
 
-    print()  # 空一行...
-
     failed_jobs = []
 
     for job_class in jobs_all:
@@ -28,8 +26,6 @@ def main():
 
         if not job.job_success:
             failed_jobs.append(job.job_name)
-
-        print()
 
     print('=================================')
     print('= 任务数: {}; 失败数: {}'.format(len(jobs_all), len(failed_jobs)))
@@ -58,9 +54,9 @@ def make_session():
             bytes = data_file.read_bytes()
             cookies = pickle.loads(bytes)
             session.cookies = cookies
-            print('# 从文件加载 cookies 成功.')
+            logging.info('# 从文件加载 cookies 成功.')
         except Exception as e:
-            print('# 未能成功载入 cookies, 从头开始~')
+            logging.info('# 未能成功载入 cookies, 从头开始~')
 
     return session
 

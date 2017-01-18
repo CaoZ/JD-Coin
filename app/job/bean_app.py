@@ -1,4 +1,3 @@
-import logging
 import traceback
 
 import util
@@ -28,10 +27,10 @@ class BeanApp(Daka):
                 # 2 表示已签到, 4 表示未签到
                 signed = ('2' == util.find_value(sign_pattern, r.text))
                 sign_days = int(util.find_value(days_pattern, r.text))
-                print('# 今日已签到: {}; 签到天数: {}'.format(signed, sign_days))
+                self.logger.info('今日已签到: {}; 签到天数: {}'.format(signed, sign_days))
 
             except Exception as e:
-                logging.error('# 返回数据结构可能有变化, 获取签到数据失败: {}'.format(e))
+                self.logger.error('返回数据结构可能有变化, 获取签到数据失败: {}'.format(e))
                 traceback.print_exc()
 
         return signed
@@ -47,13 +46,13 @@ class BeanApp(Daka):
             if status == 1:
                 sign_success = True
                 beans_count = as_json['todayGetBeansCounts']
-                print('# 签到成功; 获得 {} 个京豆.'.format(beans_count))
+                self.logger.info('签到成功; 获得 {} 个京豆.'.format(beans_count))
 
             else:
-                print('# 签到失败; status: {}'.format(status))
+                self.logger.error('签到失败; status: {}'.format(status))
 
         else:
-            print('# 签到失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
+            self.logger.error('签到失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
 
         return sign_success
 

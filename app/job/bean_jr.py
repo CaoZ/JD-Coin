@@ -17,7 +17,7 @@ class BeanJR(Bean):
             data = r.json()
             signed = data['isSign']
             sign_days = data['signNum']
-            print('# 今天已签到: {}; 签到天数: {}'.format(signed, sign_days))
+            self.logger.info('今天已签到: {}; 签到天数: {}'.format(signed, sign_days))
 
         return signed
 
@@ -33,11 +33,11 @@ class BeanJR(Bean):
 
             if sign_success:
                 count = sign_result['num']
-                print('# 签到成功, 获得 {} 个京豆.'.format(count))
+                self.logger.info('签到成功, 获得 {} 个京豆.'.format(count))
             else:
-                print('# 签到未成功: {}'.format(message))
+                self.logger.error('签到未成功: {}'.format(message))
 
         else:
-            print('# 签到失败: {}'.format(message))
+            self.logger.error('签到失败: {}'.format(message))
 
         return sign_success

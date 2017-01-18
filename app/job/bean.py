@@ -25,11 +25,11 @@ class Bean(Daka):
             ext_user_info = response['result']['extUserInfo']
             signed = (ext_user_info['isSignIn'] == 'true')
 
-            print('# 今日已签到: {}; 现在有 {} 个京豆.'.format(signed, beans_count))
+            self.logger.info('今日已签到: {}; 现在有 {} 个京豆.'.format(signed, beans_count))
 
         else:
             message = response['resultTips']
-            print('# 获取京豆信息失败: {}'.format(message))
+            self.logger.error('获取京豆信息失败: {}'.format(message))
 
         return signed
 
@@ -42,13 +42,13 @@ class Bean(Daka):
         if response['success']:
             # 签到成功, 获得若干个京豆
             beans_get = response['result']['jdnum']
-            print('# 签到成功, 获得 {} 个京豆.'.format(beans_get))
+            self.logger.info('签到成功, 获得 {} 个京豆.'.format(beans_get))
             return True
 
         else:
             # 例如: 您已签到过，请勿重复签到！
             message = response['resultTips']
-            print('# 签到失败: {}'.format(message))
+            self.logger.error('签到失败: {}'.format(message))
             return False
 
     def _get_token(self):

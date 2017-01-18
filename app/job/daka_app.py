@@ -1,4 +1,3 @@
-import logging
 import traceback
 
 import util
@@ -23,10 +22,10 @@ class DakaApp(Daka):
             try:
                 signed = ('true' == util.find_value(daka_pattern, r.text))
                 sign_days = int(util.find_value(days_pattern, r.text))
-                print('# 今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
+                self.logger.info('今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
 
             except Exception as e:
-                logging.error('# 返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
+                self.logger.error('返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
                 traceback.print_exc()
 
         return signed
@@ -39,9 +38,9 @@ class DakaApp(Daka):
             as_json = r.json()
             sign_success = as_json['success']
             message = as_json['resultMessage']
-            print('# 打卡成功: {}; Message: {}'.format(sign_success, message))
+            self.logger.info('打卡成功: {}; Message: {}'.format(sign_success, message))
 
         else:
-            print('# 打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
+            self.logger.error('打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
 
         return sign_success
