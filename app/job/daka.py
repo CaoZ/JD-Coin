@@ -5,8 +5,8 @@ from urllib.parse import urlparse, parse_qs
 import job
 import util
 from config import config
+from packages.qqlib import LogInError, NeedVerifyCode, VerifyCodeError
 from qq import JDQQ
-from qqlib import LogInError
 
 
 class Daka:
@@ -39,8 +39,8 @@ class Daka:
                 self.login()
                 is_login = True
                 self.logger.info('登录成功')
-            except Exception as e:
-                self.logger.error('登录失败: {}'.format(e))
+            except LogInError as e:
+                self.logger.error('登录失败: {}'.format(repr(e)))
 
         if is_login:
             if self.is_signed():
@@ -90,12 +90,27 @@ class Daka:
         """
         qq = JDQQ(config.qq['account'], config.qq['password'], self.session)
 
-        try:
-            qq.login()
-            self.g_tk = qq.g_tk()
+        while True:
+            try:
+                qq.login()
+                break
 
-        except LogInError as e:
-            raise LogInError('登录 QQ 失败: {}'.format(e))
+            except NeedVerifyCode as e:
+                verifier = e.verifier
+                util.show_image(verifier.image)
+                verify_code = input('请输入验证码: ')
+
+                try:
+                    verifier.verify(verify_code)
+                except VerifyCodeError:
+                    # 需刷新验证码, 使用新的 verifier; 或 qq.login(force=True)
+                    qq.verifier = None
+                    print('验证码错误.')
+
+            except LogInError as e:
+                raise LogInError('登录 QQ 失败: {}'.format(e))
+
+        self.g_tk = qq.g_tk()
 
     def login_jd(self):
         """
