@@ -7,12 +7,9 @@ class Bean(Daka):
 
     index_url = 'https://vip.jd.com'
     info_url = 'https://vip.jd.com/member/getUserInfo.html'
-    login_url = 'https://qq.jd.com/new/qq/login.aspx'
     sign_url = 'https://vip.jd.com/common/signin.html'
     test_url = 'https://vip.jd.com/member/myJingBean/index.html'
-
-    def login_data(self):
-        return {'ReturnUrl': self.test_url}
+    login_url = test_url
 
     def is_signed(self):
         response = self.session.get(self.info_url).json()

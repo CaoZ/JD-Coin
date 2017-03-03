@@ -13,9 +13,10 @@ class Config:
     def __init__(self):
         self.debug = False
         self.log_format = log_format
+        self.ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0'
 
-        self.qq = {
-            'account': '',
+        self.jd = {
+            'username': '',
             'password': ''
         }
 
@@ -26,12 +27,12 @@ class Config:
         the_config.debug = d.get('debug', False)
 
         try:
-            the_config.qq = {
-                'account': b85decode(d['qq']['account']).decode(),
-                'password': b85decode(d['qq']['password']).decode()
+            the_config.jd = {
+                'username': b85decode(d['jd']['username']).decode(),
+                'password': b85decode(d['jd']['password']).decode()
             }
         except Exception as e:
-            raise Exception('获取 QQ 帐号出错: ' + repr(e))
+            raise Exception('获取京东帐号出错: ' + repr(e))
 
         return the_config
 
