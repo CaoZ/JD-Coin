@@ -1,29 +1,28 @@
-#!/usr/bin/env python
-# coding=utf-8
 import getpass, sys, tempfile, os
-from . import QQ, VerifyCodeError, NeedVerifyCode
+from . import QQ, NeedVerifyCode
 
-quser = input('请输入QQ：')
-qpwd = getpass.getpass('请输入密码：')
+quser = input('QQ: ')
+qpwd = getpass.getpass('Password: ')
 
 qq = QQ(quser, qpwd)
+exc = None
 while True:
     try:
-        qq.login()
-    except NeedVerifyCode:
-        e = sys.exc_info()[1]
-        verifier = e.verifier
-        fd, path = tempfile.mkstemp(suffix = '.jpg')
-        os.write(fd, verifier.image)
-        os.close(fd)
-        print('验证码已保存到：', path)
-        vcode = input('请输入验证码：')
-        os.remove(path)
-        try:
+        if exc is None:
+            qq.login()
+            break
+        else:
+            if exc.message:
+                print('Error:', exc.message)
+            verifier = exc.verifier
+            fd, path = tempfile.mkstemp(suffix='.jpg')
+            os.write(fd, verifier.fetch_image())
+            os.close(fd)
+            print('Verify code is saved to:', path)
+            vcode = input('Input verify code: ')
+            os.remove(path)
             verifier.verify(vcode)
-        except VerifyCodeError:
-            print('验证码错误！')
-            raise sys.exc_info()[1]
-    else:
-        break
+            exc = None
+    except NeedVerifyCode:
+        exc = sys.exc_info()[1]
 print('Hi, %s' % qq.nick)

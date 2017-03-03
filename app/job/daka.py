@@ -5,7 +5,7 @@ from urllib.parse import urlparse, parse_qs
 import job
 import util
 from config import config
-from packages.qqlib import LogInError, NeedVerifyCode, VerifyCodeError
+from packages.qqlib import LogInError, NeedVerifyCode
 from qq import JDQQ
 
 
@@ -97,12 +97,12 @@ class Daka:
 
             except NeedVerifyCode as e:
                 verifier = e.verifier
-                util.show_image(verifier.image)
+                util.show_image(verifier.fetch_image())
                 verify_code = input('请输入验证码: ')
 
                 try:
                     verifier.verify(verify_code)
-                except VerifyCodeError:
+                except NeedVerifyCode:
                     # 需刷新验证码, 使用新的 verifier; 或 qq.login(force=True)
                     qq.verifier = None
                     print('验证码错误.')

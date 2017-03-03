@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding=utf-8
-
 '''
 QQ Login module
 Licensed to MIT
@@ -9,61 +6,115 @@ Licensed to MIT
 import hashlib, re, binascii, base64
 import rsa, requests
 from . import tea
-import random
-__all__ = ['QQ', 'LogInError']
+
+__all__ = ['QQ', 'LogInError', 'NeedVerifyCode']
 
 class LogInError(Exception): pass
-class VerifyCodeError(LogInError): pass
 
 class NeedVerifyCode(Exception):
-    def __init__(self, verifier):
+    def __init__(self, verifier, message=None):
+        Exception.__init__(self)
         self.verifier = verifier
+        self.message = message
 
 class Verifier:
-    url_newverifywrap = 'http://captcha.qq.com/cap_union_getsig_new'
-    url_newverifycode = 'http://captcha.qq.com/getimgbysig'
-    url_newverify = 'http://captcha.qq.com/cap_union_verify_new'
+    url_check = 'http://check.ptlogin2.qq.com/check'
+    url_gettype = 'http://captcha.qq.com/cap_union_new_gettype'
+    url_getsig = 'http://captcha.qq.com/cap_union_new_getsig'
+    url_getimage = 'http://captcha.qq.com/cap_union_new_getcapbysig'
+    url_verify = 'http://captcha.qq.com/cap_union_new_verify'
 
     def __init__(self, parent):
         self.parent = parent
+        self.sess = None
 
-    def get_verify_image(self):
+    def check(self):
         parent = self.parent
-        g = parent.fetch(self.url_newverifywrap, params = {
-            'apptype': 2,
+        login_sig = parent.session.cookies['pt_login_sig']
+        g = parent.fetch(self.url_check, params={
+            'pt_tea': 2,
             'uin': parent.user,
+            'appid': parent.appid,
+            'js_ver': parent.js_ver,
+            'js_type': 1,
+            'u1': parent.url_success,
+            'login_sig': login_sig,
+        }).text
+        v = re.findall('\'(.*?)\'', g)
+        self.pt_vcode_v1, self.cap_cd, self.uin, self.ptvfsession = v[:4]
+        if self.pt_vcode_v1 == '1':
+            self.throw()
+        else:
+            self.vcode = self.cap_cd
+
+    def get_type(self):
+        parent = self.parent
+        g = parent.fetch(self.url_gettype, params={
             'aid': parent.appid,
+            'protocol': 'http',
+            'clienttype': 2,
+            'apptype': 2,
+            'curenv': 'inner',
+            'uid': parent.user,
+            'cap_cd': self.cap_cd,
+            'callback': '_qqlib_',
+        }).text
+        m = re.search('"sess":"(.*?)"', g)
+        self.sess = m.group(1)
+
+    def fetch_image(self):
+        parent = self.parent
+        if self.sess is None:
+            self.get_type()
+        g = parent.fetch(self.url_getsig, params={
+            'aid': parent.appid,
+            'protocol': 'http',
+            'clienttype': 2,
+            'apptype': 2,
+            'curenv': 'inner',
+            'sess': self.sess,
+            'uid': parent.user,
             'cap_cd': self.cap_cd,
         }).json()
-        self.sig = g['vsig']
-        r = parent.fetch(self.url_newverifycode, params = {
-            'clientype': 2,
-            'sig': self.sig,
+        self.vsig = g['vsig']
+        r = parent.fetch(self.url_getimage, params={
+            'aid': parent.appid,
+            'protocol': 'http',
+            'clienttype': 2,
+            'apptype': 2,
+            'curenv': 'inner',
+            'sess': self.sess,
+            'uid': parent.user,
+            'cap_cd': self.cap_cd,
+            'vsig': self.vsig,
+            'showtype': 'embed',
+            'ischartype': 1,
         })
-        self.image = r.content
+        return r.content
 
     def verify(self, vcode):
         parent = self.parent
-        r = parent.fetch(self.url_newverify, params = {
-            'clientype': 2,
-            'uin': parent.user,
+        r = parent.fetch(self.url_verify, data={
             'aid': parent.appid,
+            'protocol': 'http',
+            'clientype': 2,
+            'apptype': 2,
+            'curenv': 'inner',
+            'sess': self.sess,
+            'uid': parent.user,
             'cap_cd': self.cap_cd,
-            'pt_style': 40,
-            'capclass': 0,
-            'sig': self.sig,
+            'vsig': self.vsig,
             'ans': vcode,
-        }, headers = {
-            'Referer': 'http://captcha.qq.com/cap_union_show?clientype=2',
-        }, cookies = {
-            'TDC_token': '18526012',
         })
-        r.encoding = 'utf-8'
+        r.encoding='utf-8'
         g = r.json()
         if g['errorCode'] != '0':
-            raise VerifyCodeError(g['errMessage'])
+            self.throw(g['errMessage'])
         self.vcode = g['randstr']
         self.ptvfsession = g['ticket']
+
+    def throw(self, message=None):
+        raise NeedVerifyCode(self, message)
 
 class QQ:
     appid = 549000912
@@ -92,7 +143,7 @@ class QQ:
         '''
         Get a log-in signature in cookies.
         '''
-        self.fetch(self.url_xlogin, params = {
+        self.fetch(self.url_xlogin, params={
             'proxy_url': 'http://qzs.qq.com/qzone/v6/portal/proxy.html',
             'daid': 5,
             'no_verifyimg': 1,
@@ -100,7 +151,6 @@ class QQ:
             's_url': self.url_success,
         })
 
-    url_check = 'http://check.ptlogin2.qq.com/check'
     url_login = 'http://ptlogin2.qq.com/login'
     def login(self, force=False):
         login_sig = self.session.cookies['pt_login_sig']
@@ -108,26 +158,11 @@ class QQ:
             self.verifier = None
         if self.verifier is None:
             verifier = self.verifier = Verifier(self)
-            g = self.fetch(self.url_check, params = {
-                'pt_tea': 2,
-                'uin': self.user,
-                'appid': self.appid,
-                'js_ver': self.js_ver,
-                'js_type': 1,
-                'u1': self.url_success,
-                'login_sig': login_sig,
-            }).text
-            v = re.findall('\'(.*?)\'', g)
-            verifier.pt_vcode_v1, verifier.cap_cd, verifier.uin, verifier.ptvfsession = v[:4]
-            if verifier.pt_vcode_v1 == '1':
-                verifier.get_verify_image()
-                raise NeedVerifyCode(verifier)
-            else:
-                verifier.vcode = verifier.cap_cd
+            verifier.check()
         else:
             verifier = self.verifier
         ptvfsession = verifier.ptvfsession or self.session.cookies.get('ptvfsession', '')
-        g = self.fetch(self.url_login, params = {
+        g = self.fetch(self.url_login, params={
             'u': self.user,
             'verifycode': verifier.vcode,
             'pt_vcode_v1': verifier.pt_vcode_v1,
@@ -150,7 +185,7 @@ class QQ:
         }).text
         r = re.findall('\'(.*?)\'', g)
         if r[0] == '4':
-            raise VerifyCodeError(r[4])
+            verifier.throw(r[4])
         if r[0] != '0':
             raise LogInError(r[4])
         self.nick = r[5]

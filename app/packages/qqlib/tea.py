@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding=utf-8
-
 '''
 QQ Crypt module
 Licensed to MIT
@@ -62,12 +59,12 @@ def encrypt(v, k):
     vl = len(v)
     #filln = (8 - (vl + 2)) % 8
     filln = (6 - vl) % 8
-    v_arr = [
+    v_arr = (
         bytes(bytearray([filln | 0xf8])),
         b'\xad' * (filln + 2),  # random char * (filln + 2)
         v,
         b'\0' * 7,
-    ]
+    )
     v = b''.join(v_arr)
     tr = to = b'\0' * 8
     r = []

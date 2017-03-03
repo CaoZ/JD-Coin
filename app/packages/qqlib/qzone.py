@@ -1,5 +1,7 @@
-#!/usr/bin/env python
-# coding=utf-8
+'''
+QZone module
+'''
+
 from . import QQ
 
 class QZone(QQ):
@@ -15,7 +17,7 @@ class QZone(QQ):
         return h & 0x7fffffff
 
     def feed(self, data):
-        self.fetch(self.url_feed, params = {
+        self.fetch(self.url_feed, params={
             'g_tk': self.g_tk(),
         }, data = {
             'syn_tweet_verson'    : 1,
@@ -42,7 +44,7 @@ class MQZone(QZone):
     url_feed = 'https://mobile.qzone.qq.com/mood/publish_mood'
 
     def feed(self, data):
-        self.fetch(self.url_feed, params = {
+        self.fetch(self.url_feed, params={
             'g_tk': self.g_tk(),
         }, data = {
             'opr_type': 'publish_shuoshuo',
