@@ -23,12 +23,10 @@ class Daka:
         self.session = session
         self.client_id = ''
         self.redirect_uri = ''
-        self.state = ''
-        self.g_tk = 0
         self.job_success = False
 
     def run(self):
-        self.logger.info('Job start: {}'.format(self.job_name))
+        self.logger.info('Job Start: {}'.format(self.job_name))
 
         is_login = self.is_login()
         self.logger.info('登录状态: {}'.format(is_login))
@@ -70,19 +68,21 @@ class Daka:
         # https://graph.qq.com/oauth/show?which=Login&display=pc&response_type=code&client_id=100273020&redirect_uri=https%3A%2F%2Fplogin.m.jd.com%2Fcgi-bin%2Fm%2Fqqcallback%3Fsid%3Dq8m7xgogbro69ucqegmearcmofs8zbcq&state=sp6r8u0z
         params = parse_qs(urlparse(r.url).query)
 
+        state = ''
+
         try:
             self.client_id = params['client_id'][0]
             self.redirect_uri = params['redirect_uri'][0]
 
             if 'state' in params:
                 # state 可能不存在, 比如在登录 web 版京东时
-                self.state = params['state'][0]
+                state = params['state'][0]
 
         except Exception as e:
             raise Exception('缺少 client_id、redirect_uri 或 state 参数：' + str(e))
 
-        self.login_qq()
-        self.login_jd()
+        g_tk = self.login_qq()
+        self.login_jd(state, g_tk)
 
     def login_qq(self):
         """
@@ -110,9 +110,9 @@ class Daka:
             except LogInError as e:
                 raise LogInError('登录 QQ 失败: {}'.format(e))
 
-        self.g_tk = qq.g_tk()
+        return qq.g_tk()
 
-    def login_jd(self):
+    def login_jd(self, state, g_tk):
         """
         使用第三方登录系统(QQ)登录京东
         """
@@ -120,9 +120,9 @@ class Daka:
             'response_type': 'code',
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
-            'state': self.state,
+            'state': state,
             'src': '1',
-            'g_tk': self.g_tk,
+            'g_tk': g_tk,
             'auth_time': int(time.time())
         }
 
