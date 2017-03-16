@@ -23,7 +23,12 @@ class MobileBrowser(QWebEngineView):
         self.set_trigger()
 
         # WebEngine 的 cookie store 没提供获取 cookie 的方法，因此只能通过 cookieAdded 事件捕获。
-        self.cookies = SimpleCookie()
+        # 不能用 SimpleCookie, 因为 SimpleCookie 仅以 cookie name 作为 key, 不能存储 name 相同而 domain 不同
+        # 的 cookie, 后者会覆盖前者, 导致 cookie 丢失. 比如, 京东登录成功后会返回:
+        # pin=***; expires=Fri, 14-Apr-2017 17:29:28 GMT; domain=.jd.com; path=/
+        # pin=***; expires=Fri, 14-Apr-2017 17:29:28 GMT; domain=.360buy.com; path=/
+        # 等一系列同名 cookie.
+        self.cookies = RequestsCookieJar()
 
         self.show()
 
@@ -64,7 +69,10 @@ class MobileBrowser(QWebEngineView):
 
     def cookie_added(self, cookie):
         raw_form = bytes(cookie.toRawForm()).decode()
-        self.cookies.load(raw_form)
+        simple_cookie = SimpleCookie(raw_form)
+
+        for cookie in simple_cookie.values():
+            self.cookies.set(cookie.key, cookie)
 
     def load_finished(self, success):
         """
@@ -72,15 +80,6 @@ class MobileBrowser(QWebEngineView):
         """
         if success:
             self.auto_login(self.url().host())
-
-    def get_cookies(self):
-        cookie_jar = RequestsCookieJar()
-
-        for cookie_name in self.cookies:
-            cookie = self.cookies[cookie_name]
-            cookie_jar.set(cookie.key, cookie)
-
-        return cookie_jar
 
     def auto_login(self, host):
         """
@@ -118,13 +117,12 @@ def get_cookies(url):
         icon_path = str(Path(__file__, '../jd.png').resolve())
         APP.setWindowIcon(QIcon(icon_path))
 
-    browser = MobileBrowser()
-    browser.load(QUrl(url))
+    the_browser = MobileBrowser()
+    the_browser.load(QUrl(url))
 
     APP.exec()
 
-    cookie_jar = browser.get_cookies()
-    return cookie_jar
+    return the_browser.cookies
 
 
 def main():
