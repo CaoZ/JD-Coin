@@ -20,7 +20,7 @@ class Daka:
         self.job_success = False
 
     def run(self):
-        self.logger.info('Job start: {}'.format(self.job_name))
+        self.logger.info('Job Start: {}'.format(self.job_name))
 
         is_login = self.is_login()
         self.logger.info('登录状态: {}'.format(is_login))
