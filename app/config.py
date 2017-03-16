@@ -1,4 +1,5 @@
 import argparse
+import getpass
 import json
 import logging
 import sys
@@ -15,8 +16,8 @@ class Config:
         self.log_format = log_format
         self.ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0'
 
-        self.jd = {
-            'username': '',
+        self.qq = {
+            'account': '',
             'password': ''
         }
 
@@ -27,16 +28,17 @@ class Config:
         the_config.debug = d.get('debug', False)
 
         try:
-            the_config.jd = {
-                'username': b85decode(d['jd']['username']).decode(),
-                'password': b85decode(d['jd']['password']).decode()
+            the_config.qq = {
+                'account': b85decode(d['qq']['account']).decode(),
+                'password': b85decode(d['qq']['password']).decode()
             }
         except Exception as e:
-            logging.error('获取京东帐号出错: ' + repr(e))
+            logging.error('获取 QQ 帐号出错: ' + repr(e))
 
-        if not (the_config.jd['username'] or the_config.jd['password']):
-            # 有些页面操作还是有用的, 比如移动焦点到输入框... 滚动页面到登录表单位置等, 所以不禁止 browser 的 auto_login 动作了.
-            logging.info('用户名/密码未找到, 自动填充/登录功能将不可用.')
+        if not (the_config.qq['account'] and the_config.qq['password']):
+            print('用户名/密码未找到, 请手动输入: ')
+            the_config.qq['account'] = input('QQ 账号: ')
+            the_config.qq['password'] = getpass.getpass('QQ 密码: ')
 
         return the_config
 
