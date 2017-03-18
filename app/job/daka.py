@@ -2,10 +2,11 @@ import time
 import traceback
 from urllib.parse import urlparse, parse_qs
 
+from qqlib import LogInError, NeedVerifyCode
+
 import job
 import util
 from config import config
-from packages.qqlib import LogInError, NeedVerifyCode
 from qq import JDQQ
 
 

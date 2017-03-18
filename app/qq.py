@@ -1,4 +1,4 @@
-from packages.qqlib import QQ
+from qqlib import QQ
 
 
 class JDQQ(QQ):
