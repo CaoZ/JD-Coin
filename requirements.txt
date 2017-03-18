@@ -1,3 +1,2 @@
 requests
-rsa
 PyQT5
