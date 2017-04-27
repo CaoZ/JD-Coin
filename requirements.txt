@@ -1,2 +1,2 @@
 requests
-https://github.com/gera2ld/qqlib/archive/c7ef32f5b0c5c32c8070755e296b708c1210410b.zip
+qqlib==1.1.1
