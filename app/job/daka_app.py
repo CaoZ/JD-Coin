@@ -1,68 +1,97 @@
 import traceback
 
-import util
 from .daka import Daka
 
 
 class DakaApp(Daka):
     job_name = '京东客户端钢镚打卡'
 
-    index_url = 'https://bk.jd.com/m/jdapp/daka/index.html'
-    sign_url = 'https://bk.jd.com/m/jdapp/daka/daka.html'
-    test_url = 'https://bk.jd.com/m/jdapp/daka/dakDetail.html'
+    index_url = 'https://m.jr.jd.com/spe/qyy/main/index.html?userType=41'
+    sign_url = 'https://ms.jr.jd.com/gw/generic/base/h5/m/baseSignInEncrypt'
+    test_url = 'https://ms.jr.jd.com/gw/generic/base/h5/m/baseGetMessByGroupType'
 
     def __init__(self, session):
         super().__init__(session)
-        self.daka_act_type = ''
+        self.sign_data = {}
+
+    def get_sign_data(self):
+        payload = {
+            'reqData': '{"clientType":"outH5","userType":41,"groupType":154}',
+            'sid': self.session.cookies.get('sid'),
+            'source': 'jrm'
+        }
+
+        sign_data = {}
+
+        try:
+            # 参见 daka_app_min.js -> h.getSign, 第 1825 行开始
+            r = self.session.post(self.test_url, data=payload)
+            as_json = r.json()
+
+            if 'resultData' in as_json:
+                sign_data = r.json()['resultData']['53']
+
+            else:
+                error_msg = as_json.get('resultMsg') or as_json.get('resultMessage')
+                self.logger.error('获取打卡数据失败: {}'.format(error_msg))
+
+        except Exception as e:
+            self.logger.error('获取打卡数据失败: {}'.format(e))
+
+        return sign_data
+
+    def is_login(self):
+        sign_data = self.get_sign_data()
+
+        # 参见 daka_app_min.js, 第 1835 行
+        is_login = 'suitable' in sign_data
+
+        if is_login:
+            # 用户已登录, sign_data 有效, 存储下
+            self.sign_data = sign_data
+
+        return is_login
 
     def is_signed(self):
-        r = self.session.get(self.index_url)
+        sign_data = self.sign_data or self.get_sign_data()
+
         signed = False
 
-        if r.ok:
-            daka_pattern = r'dakaed:\s*(\w+)'
-            days_pattern = r'dakaNumber:\s*(\d+)'
+        try:
+            signed = sign_data['signInStatus'] == 1
+            self.logger.info('今日已打卡: {}'.format(signed))
 
-            try:
-                signed = ('true' == util.find_value(daka_pattern, r.text))
-                sign_days = int(util.find_value(days_pattern, r.text))
-                self.logger.info('今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
-
-            except Exception as e:
-                self.logger.error('返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
-                traceback.print_exc()
-
-            if not signed:
-                # no need to parse if already signed
-                self.daka_act_type = self.get_daka_act_type(r.text)
-
-        else:
-            self.logger.error('打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
+        except Exception as e:
+            self.logger.error('返回数据结构可能有变化, 获取打卡数据失败: {}'.format(e))
+            traceback.print_exc()
 
         return signed
 
     def sign(self):
-        payload = {'dakaActType': self.daka_act_type}
-        r = self.session.get(self.sign_url, params=payload)
-        sign_success = False
+        payload = {
+            'reqData': '{}',
+            'sid': self.session.cookies.get('sid'),
+            'source': 'jrm'
+        }
 
-        if r.ok:
-            as_json = r.json()
-            sign_success = as_json['success']
-            message = as_json['resultMessage']
-            self.logger.info('打卡成功: {}; Message: {}'.format(sign_success, message))
+        r = self.session.post(self.sign_url, data=payload)
+        as_json = r.json()
+
+        if 'resultData' in as_json:
+            result_data = as_json['resultData']
+            sign_success = result_data['isSuccess']
+            message = result_data['showMsg']
+
+            # 参见 daka_app_min.js, 第 1893 行
+            continuity_days = result_data['continuityDays']
+
+            if continuity_days > 1:
+                message += '; 签到天数: {}'.format(continuity_days)
 
         else:
-            self.logger.error('打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
+            sign_success = False
+            message = as_json.get('resultMsg') or as_json.get('resultMessage')
+
+        self.logger.info('打卡成功: {}; Message: {}'.format(sign_success, message))
 
         return sign_success
-
-    def get_daka_act_type(self, html):
-        # e.g: data:{'dakaActType':'JD_APP_V7'},
-        pattern = r"""dakaActType['"]:\s*['"](.*?)['"]"""
-        daka_act_type = util.find_value(pattern, html)
-
-        if not daka_act_type:
-            self.logger.warning('dakaActType 参数未找到, 页面可能有变化, 打卡可能不成功.')
-
-        return daka_act_type
