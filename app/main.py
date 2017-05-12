@@ -5,6 +5,8 @@ import traceback
 from pathlib import Path
 
 import requests
+import random
+import time
 
 from config import config
 from job import jobs_all
@@ -26,6 +28,8 @@ def main():
 
         if not job.job_success:
             failed_jobs.append(job.job_name)
+        sleep_time = random.randrange(1000,4000)/1000.0
+        time.sleep(sleep_time)
 
     print('=================================')
     print('= 任务数: {}; 失败数: {}'.format(len(jobs_all), len(failed_jobs)))
