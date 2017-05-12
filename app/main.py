@@ -28,7 +28,7 @@ def main():
 
         if not job.job_success:
             failed_jobs.append(job.job_name)
-        sleep_time = random.randrange(1000,4000)/1000.0
+        sleep_time = random.randrange(2000,5000)/1000.0
         time.sleep(sleep_time)
 
     print('=================================')
