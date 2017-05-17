@@ -52,6 +52,8 @@ pip install -r requirements.txt
 
 ### 配置文件说明
 
+#### 帐号/密码：
+
 可以将帐号/密码保存到配置文件中（若使用浏览器方式，可以只保存帐号），这样就不用在每次登录时手动输入了（虽然使用了 cookie 保存登录状态，但京东还是会每隔几天就让你重新登录的...）。
 
 将默认配置文件复制为`config.json`，然后使用 [Base85](https://en.wikipedia.org/wiki/Ascii85) 方式将对应的帐号、密码编码后填入配置文件中即可，完成后是这样子的：
@@ -75,6 +77,33 @@ pip install -r requirements.txt
 >>> base64.b85encode(b'username').decode()
 'b#rBMZeeX@'
 ```
+
+#### 我没有小白卡/我想跳过某些任务：
+
+将想要跳过的任务填写到配置文件中的 `jobs_skip` 中即可。比如想跳过「小白卡钢镚打卡」任务，填写 `Daka` 即可：
+
+```json
+"jobs_skip": ["Daka"]
+```
+
+跳过多个任务:
+
+```json
+"jobs_skip": ["Daka", "DakaApp"]  
+```
+
+任务列表:
+
+| 任务 | 描述 |
+| --- | --- |
+| DaKa | 小白卡钢镚打卡 |
+| DakaApp | 京东客户端钢镚打卡 |
+| BeanApp | 京东客户端签到领京豆 |
+| Bean | 京东会员页签到领京豆 |
+| BeanJR | 京东金融签到领京豆 |
+
+
+<br>
 
 ### 设置网络代理
 

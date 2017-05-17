@@ -20,6 +20,8 @@ class Config:
             'password': ''
         }
 
+        self.jobs_skip = []
+
     @classmethod
     def load(cls, d):
         the_config = Config()
@@ -37,6 +39,8 @@ class Config:
         if not (the_config.jd['username'] or the_config.jd['password']):
             # 有些页面操作还是有用的, 比如移动焦点到输入框... 滚动页面到登录表单位置等, 所以不禁止 browser 的 auto_login 动作了.
             logging.info('用户名/密码未找到, 自动填充/登录功能将不可用.')
+
+        the_config.jobs_skip = d.get('jobs_skip', [])
 
         return the_config
 
