@@ -14,7 +14,7 @@ class Config:
     def __init__(self):
         self.debug = False
         self.log_format = log_format
-        self.ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:51.0) Gecko/20100101 Firefox/51.0'
+        self.ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0) Gecko/20100101 Firefox/52.0'
 
         self.qq = {
             'account': '',
