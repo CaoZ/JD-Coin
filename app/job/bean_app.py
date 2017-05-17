@@ -13,9 +13,8 @@ class BeanApp(Daka):
 
     index_url = 'https://ld.m.jd.com/userBeanHomePage/getLoginUserBean.action'
     sign_url = 'https://ld.m.jd.com/SignAndGetBeansN/signStart.action'
+    test_url = 'https://home.m.jd.com'
     poker_url = 'https://ld.m.jd.com/card/getCardResult.action'
-
-    test_url = index_url
 
     def is_signed(self):
         r = self.session.get(self.index_url)
