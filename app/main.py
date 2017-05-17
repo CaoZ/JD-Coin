@@ -13,9 +13,10 @@ from job import jobs_all
 def main():
     session = make_session()
 
-    failed_jobs = []
+    jobs = [job for job in jobs_all if job.__name__ not in config.jobs_skip]
+    jobs_failed = []
 
-    for job_class in jobs_all:
+    for job_class in jobs:
         job = job_class(session)
 
         try:
@@ -25,13 +26,13 @@ def main():
             traceback.print_exc()
 
         if not job.job_success:
-            failed_jobs.append(job.job_name)
+            jobs_failed.append(job.job_name)
 
     print('=================================')
-    print('= 任务数: {}; 失败数: {}'.format(len(jobs_all), len(failed_jobs)))
+    print('= 任务数: {}; 失败数: {}'.format(len(jobs), len(jobs_failed)))
 
-    if len(failed_jobs) > 0:
-        print('= 失败的任务: {}'.format(failed_jobs))
+    if jobs_failed:
+        print('= 失败的任务: {}'.format(jobs_failed))
     else:
         print('= 全部成功 ~')
 

@@ -3,5 +3,6 @@
   "qq": {
     "account": "",
     "password": ""
-  }
+  },
+  "jobs_skip": []
 }

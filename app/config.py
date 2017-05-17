@@ -21,6 +21,8 @@ class Config:
             'password': ''
         }
 
+        self.jobs_skip = []
+
     @classmethod
     def load(cls, d):
         the_config = Config()
@@ -39,6 +41,8 @@ class Config:
             print('用户名/密码未找到, 请手动输入: ')
             the_config.qq['account'] = input('QQ 账号: ')
             the_config.qq['password'] = getpass.getpass('QQ 密码: ')
+
+        the_config.jobs_skip = d.get('jobs_skip', [])
 
         return the_config
 
