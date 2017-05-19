@@ -2,6 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.5%2B-blue.svg)](https://www.python.org)
 
+
 ### 使用方法：
 
 1. 安装`Python` (3.5 或更高版本）
@@ -89,7 +90,7 @@ pip install -r requirements.txt
 跳过多个任务:
 
 ```json
-"jobs_skip": ["Daka", "DakaApp"]  
+"jobs_skip": ["DataStation", "Daka"]  
 ```
 
 任务列表:
@@ -101,9 +102,10 @@ pip install -r requirements.txt
 | BeanApp | 京东客户端签到领京豆 |
 | Bean | 京东会员页签到领京豆 |
 | BeanJR | 京东金融签到领京豆 |
-
+| DataStation | 流量加油站签到领流量 |
 
 <br>
+
 
 ### 设置网络代理
 
