@@ -1,7 +1,6 @@
 import random
 import traceback
 
-import util
 from .daka import Daka
 
 
@@ -11,31 +10,35 @@ class BeanApp(Daka):
     """
     job_name = '京东客户端签到领京豆'
 
-    index_url = 'https://ld.m.jd.com/userBeanHomePage/getLoginUserBean.action'
+    index_url = 'https://bean.m.jd.com'
+    info_url = 'https://api.m.jd.com/client.action?functionId=queryBeanIndex'
     sign_url = 'https://ld.m.jd.com/SignAndGetBeansN/signStart.action'
     test_url = 'https://home.m.jd.com'
     poker_url = 'https://ld.m.jd.com/card/getCardResult.action'
 
     def is_signed(self):
-        r = self.session.get(self.index_url)
+        payload = {
+            'client': 'ld',
+            'clientVersion': '1.0.0'
+        }
+
+        response = self.session.get(self.info_url, params=payload).json()
         signed = False
 
-        if r.ok:
-            sign_pattern = r'"signStatval".*?value="(\d+)"'
-            days_pattern = r'"signNum".*?value="(\d+)"'
-            dou_pattern = r'"dou".*?value="(\d+)"'
+        if response['code'] == '0':
+            data = response['data']
 
-            try:
-                # https://h.360buyimg.com/getbean/js/jdBeanNew.js
-                # 2 表示已签到, 4 表示未签到
-                signed = ('2' == util.find_value(sign_pattern, r.text))
-                sign_days = util.find_value(days_pattern, r.text)
-                dou_count = util.find_value(dou_pattern, r.text)
-                self.logger.info('今日已签到: {}; 签到天数: {}; 现有京豆: {}'.format(signed, sign_days, dou_count))
+            # 以前的 js: https://h.360buyimg.com/getbean/js/jdBeanNew.js
+            # 现在的, 根据测试, 2 表示已签到, 4 表示未签到, 5 表示未登录
+            signed = (data['status'] == '2')
+            sign_days = int(data['continuousDays'])
+            beans_count = int(data['totalUserBean'])
 
-            except Exception as e:
-                self.logger.error('返回数据结构可能有变化, 获取签到数据失败: {}'.format(e))
-                traceback.print_exc()
+            self.logger.info('今日已签到: {}; 签到天数: {}; 现有京豆: {}'.format(signed, sign_days, beans_count))
+
+        else:
+            error_msg = response.get('echo') or str(response)
+            self.logger.error('签到信息获取失败: {}'.format(error_msg))
 
         return signed
 
