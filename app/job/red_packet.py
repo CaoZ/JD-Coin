@@ -2,9 +2,9 @@ from .daka import Daka
 
 
 class RedPacket(Daka):
-    job_name = '京东直播现金红包'
+    job_name = '京东小金库现金红包'
 
-    index_url = 'https://m.jr.jd.com/udc-active/2017/liveRedPacket/html/index.html'
+    index_url = 'https://m.jr.jd.com/udc-active/2017/618RedPacket/html/index.html'
     sign_url = 'https://ms.jr.jd.com/gw/generic/activity/h5/m/receiveZhiBoXjkRedPacket'
     test_url = 'https://home.m.jd.com'
 
@@ -16,7 +16,7 @@ class RedPacket(Daka):
         # 参见 red_packet_index.js
 
         payload = {
-            'reqData': '{"activityCode":"zhibo_xjk"}',
+            'reqData': '{"activityCode":"ying_yong_bao_618"}',
             'sid': self.session.cookies.get('sid')
         }
 

@@ -103,7 +103,7 @@ pip install -r requirements.txt
 | Bean | 京东会员页签到领京豆 |
 | BeanJR | 京东金融签到领京豆 |
 | DataStation | 流量加油站签到领流量 |
-| RedPacket | 京东直播现金红包 |
+| RedPacket | 京东小金库现金红包 |
 
 <br>
 
