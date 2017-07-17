@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 import pickle
 import traceback
 from pathlib import Path
@@ -29,6 +30,7 @@ def main():
             jobs_failed.append(job.job_name)
 
     print('=================================')
+    print(time.strftime('%Y-%m-%d %H:%M:%S'))
     print('= 任务数: {}; 失败数: {}'.format(len(jobs), len(jobs_failed)))
 
     if jobs_failed:
