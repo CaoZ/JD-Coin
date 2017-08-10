@@ -91,6 +91,8 @@ class MobileBrowser(QWebEngineView):
             code = """
             $('#username').val('{username}');
             $('#password').val('{password}');
+            $('#loginBtn').addClass('btn J_ping btn-active');
+            $('#loginBtn').click();
             $('#code').focus();
             """
 
