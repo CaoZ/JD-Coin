@@ -12,7 +12,7 @@ class BeanApp(Daka):
 
     index_url = 'https://bean.m.jd.com'
     info_url = 'https://api.m.jd.com/client.action?functionId=queryBeanIndex'
-    sign_url = 'https://ld.m.jd.com/SignAndGetBeansN/signStart.action'
+    sign_url = 'https://api.m.jd.com/client.action?functionId=signBeanStart'
     test_url = 'https://home.m.jd.com'
     poker_url = 'https://ld.m.jd.com/card/getCardResult.action'
 
@@ -43,26 +43,29 @@ class BeanApp(Daka):
         return signed
 
     def sign(self):
-        r = self.session.get(self.sign_url)
-        sign_success = False
+        payload = {
+            'client': 'ld',
+            'clientVersion': '1.0.0'
+        }
 
-        if r.ok:
-            as_json = r.json()
-            sign_success = (as_json['status'] == 1)
-            message = as_json['signText']
+        response = self.session.get(self.sign_url,params=payload).json()
+        sign_success = False
+        if response['code'] == '0':
+            data = response['data']
+            sign_success = (data['status'] == '1')
+            message = data['signShowBean']['signText']
+            message = message.replace('signAward',data['signShowBean']['signAward'])
             self.logger.info('签到成功: {}; Message: {}'.format(sign_success, message))
 
-            poker = as_json['poker']
-            # "complated": 原文如此, 服务端的拼写错误...
+            poker = data['signShowBean']
             poker_picked = poker['complated']
-
             if not poker_picked:
                 self.pick_poker(poker)
 
         else:
-            self.logger.error('签到失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
-
+            self.logger.error('签到失败: Status code: {}; Reason: {}'.format(response.status_code, response.reason))
         return sign_success
+
 
     def pick_poker(self, poker):
         poker_to_pick = random.randint(1, len(poker['awardList']))
