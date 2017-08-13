@@ -36,9 +36,14 @@ class Config:
         except Exception as e:
             logging.error('获取京东帐号出错: ' + repr(e))
 
-        if not (the_config.jd['username'] or the_config.jd['password']):
-            # 有些页面操作还是有用的, 比如移动焦点到输入框... 滚动页面到登录表单位置等, 所以不禁止 browser 的 auto_login 动作了.
-            logging.info('用户名/密码未找到, 自动填充/登录功能将不可用.')
+        if not (the_config.jd['username'] and the_config.jd['password']):
+            # 有些页面操作还是有用的, 比如移动焦点到输入框... 滚动页面到登录表单位置等
+            # 所以不禁止 browser 的 auto_login 动作了, 但两项都有才自动提交, 否则只进行自动填充动作
+            the_config.jd['auto_submit'] = 0  # used in js
+            logging.info('用户名/密码未找到, 自动登录功能将不可用.')
+
+        else:
+            the_config.jd['auto_submit'] = 1
 
         the_config.jobs_skip = d.get('jobs_skip', [])
 

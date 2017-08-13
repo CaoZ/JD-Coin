@@ -1,5 +1,14 @@
 import re
 
+from requests import Response
+
+
+class RequestError(Exception):
+    def __init__(self, message, code: str = None, response: Response = None):
+        self.message = message
+        self.code = code
+        self.response = response
+
 
 def find_value(pattern, string, default=None, flags=0):
     """

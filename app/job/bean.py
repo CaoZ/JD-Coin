@@ -1,4 +1,4 @@
-import util
+from . import common
 from .daka import Daka
 
 
@@ -51,7 +51,7 @@ class Bean(Daka):
     def _get_token(self):
         html = self.session.get(self.index_url).text
         pattern = r'pageConfig.token="(\d+)"'
-        token = util.find_value(pattern, html)
+        token = common.find_value(pattern, html)
 
         if not token:
             raise Exception('token 未找到.')

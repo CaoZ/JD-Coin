@@ -1,8 +1,10 @@
 import traceback
 
+from requests import Session
+
 import browser
 import job
-import util
+from .common import find_value, RequestError
 
 
 class Daka:
@@ -15,7 +17,7 @@ class Daka:
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
     logger = job.logger
 
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
         self.job_success = False
 
@@ -63,8 +65,8 @@ class Daka:
             days_pattern = r'dakaNumber:\s*(\d+)'
 
             try:
-                signed = ('true' == util.find_value(sign_pattern, r.text))
-                sign_days = int(util.find_value(days_pattern, r.text))
+                signed = ('true' == find_value(sign_pattern, r.text))
+                sign_days = int(find_value(days_pattern, r.text))
                 self.logger.info('今日已打卡: {}; 打卡天数: {}'.format(signed, sign_days))
 
             except Exception as e:
@@ -74,47 +76,51 @@ class Daka:
         return signed
 
     def sign(self):
-        r = self.session.get(self.sign_url)
-        sign_success = False
+        try:
+            data = self.fetch_data(self.sign_url)
+            self.logger.info('打卡成功: ' + data['resultMessage'])
+            return True
 
-        if r.ok:
-            as_json = r.json()
-            sign_success = as_json['success']
-            message = as_json['resultMessage']
-
-            if not sign_success and as_json['resultCode'] == '0003':
-                # 已打卡 7 次, 需要先去 "任务" 里完成领一个钢镚的任务...
+        except RequestError as e:
+            if e.code == '0003':
+                # 已打卡 7 次, 需要先去 "任务" 里完成一个领钢镚任务...
                 self.logger.info('已打卡 7 次, 去完成领钢镚任务...')
                 pick_success = self.pick_gb()
 
                 if pick_success:
                     # 钢镚领取成功, 重新开始打卡任务
                     return self.sign()
-
                 else:
-                    message = '钢镚领取任务未成功完成.'
+                    e.message = '钢镚领取任务未成功完成.'
 
-            self.logger.info('打卡成功: {}; Message: {}'.format(sign_success, message))
-
-        else:
-            self.logger.error('打卡失败: Status code: {}; Reason: {}'.format(r.status_code, r.reason))
-
-        return sign_success
+            self.logger.error('打卡失败: ' + e.message)
+            return False
 
     def pick_gb(self):
         # 任务列表在 https://bk.jd.com/m/money/doJobMoney.html 中看
         # 领钢镚的任务的 id 是 82
-        r = self.session.get(self.job_gb_url)
-        pick_success = False
+        try:
+            data = self.fetch_data(self.job_gb_url)
+            self.logger.info('钢镚领取成功: {}'.format(data['resultMessage']))
+            return True
+
+        except RequestError as e:
+            self.logger.error('领钢镚 -> 钢镚领取失败: {}'.format(e.message))
+            return False
+
+    def fetch_data(self, url, payload=None):
+        r = self.session.get(url, params=payload)
 
         try:
             as_json = r.json()
-            pick_success = as_json['success']
-            message = as_json['resultMessage']
-            self.logger.info('钢镚领取成功: {}; Message: {}'.format(pick_success, message))
+        except ValueError:
+            raise RequestError('unexpected response: url: {}; http code: {}'.format(url, r.status_code), response=r)
 
-        except Exception as e:
-            self.logger.error('领钢镚 -> 钢镚领取失败: {}'.format(e))
-            traceback.print_exc()
+        if as_json['success']:
+            # 请求成功
+            return as_json
 
-        return pick_success
+        else:
+            error_msg = as_json.get('resultMessage') or str(as_json)
+            error_code = as_json.get('resultCode')
+            raise RequestError(error_msg, error_code)

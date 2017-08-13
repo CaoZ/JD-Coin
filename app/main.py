@@ -41,7 +41,7 @@ def main():
     save_session(session)
 
 
-def make_session():
+def make_session() -> requests.Session:
     session = requests.Session()
 
     session.headers.update({

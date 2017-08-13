@@ -79,7 +79,8 @@ class DakaApp(Daka):
 
         if 'resultData' in as_json:
             result_data = as_json['resultData']
-            sign_success = result_data['isSuccess']
+            # statusCode 14 似乎是表示延期到帐的意思, 如: 签到成功，钢镚将于15个工作日内发放到账
+            sign_success = result_data['isSuccess'] or result_data['statusCode'] == 14
             message = result_data['showMsg']
 
             # 参见 daka_app_min.js, 第 1893 行
