@@ -26,27 +26,24 @@
 
 #### 方式一：
 
-通过第三方登录的方式，登录了[绑定的 QQ 帐号](https://safe.jd.com/union/index.action)，也就登录了京东。
-
-在登录 QQ 时有时会出现需要输入验证码的情况，若是在 [iTerm2](http://www.iterm2.com/) 中运行，验证码图片会显示在终端中，直接输入即可；否则会调用系统关联应用打开验证码图片。
-
-![通过 QQ 登录](docs/qq.png)
-
-
-#### 方式二：
-
-（需切换到`qt-browser`分支，并安装[`PyQt5`](https://pypi.python.org/pypi/PyQt5)）
-
-```sh
-git checkout qt-browser
-pip install -r requirements.txt
-```
+> 2017-08-13 更新：即现在的默认分支`browser`。
 
 借助内置浏览器登录。本方式中使用 `PyQt5` 的 `WebEngine` 构建了个简易浏览器，在其中登录京东即可。
 
 登录后关掉浏览器窗口，程序会获取到 cookie，然后就可以继续签到了~
 
 ![浏览器方式登录](docs/browser.png)
+
+
+#### 方式二：
+
+> 2017-08-13 更新：目前此方式[依赖的包](https://github.com/gera2ld/qqlib)存在一些问题，暂不可用，请使用「浏览器方式」登录。
+
+通过第三方登录的方式，登录了[绑定的 QQ 帐号](https://safe.jd.com/union/index.action)，也就登录了京东。
+
+在登录 QQ 时有时会出现需要输入验证码的情况，若是在 [iTerm2](http://www.iterm2.com/) 中运行，验证码图片会显示在终端中，直接输入即可；否则会调用系统关联应用打开验证码图片。
+
+![通过 QQ 登录](docs/qq.png)
 
 
 ## 其他
