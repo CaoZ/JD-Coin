@@ -1,3 +1,4 @@
+import locale
 import urllib.parse
 import urllib.request
 from http.cookies import SimpleCookie
@@ -91,9 +92,13 @@ class MobileBrowser(QWebEngineView):
             code = """
             $('#username').val('{username}');
             $('#password').val('{password}');
-            $('#loginBtn').addClass('btn J_ping btn-active');
-            $('#loginBtn').click();
-            $('#code').focus();
+            
+            if ({auto_submit}) {{
+                $('#loginBtn').addClass('btn-active');
+                $('#loginBtn').click();
+            }} else {{
+                $('#username').focus();
+            }}
             """
 
         elif host == 'passport.jd.com':
@@ -103,7 +108,7 @@ class MobileBrowser(QWebEngineView):
             $('#loginname').val('{username}');
             $('#nloginpwd').val('{password}');
             $('#autoLogin').prop('checked', true);
-            $('#loginsubmit').click();
+            if ({auto_submit}) $('#loginsubmit').click();
             """
 
         if code:
@@ -112,15 +117,22 @@ class MobileBrowser(QWebEngineView):
 
 
 def get_cookies(url):
-    global APP
+    starting_up = QApplication.startingUp()
 
-    if not APP:
+    if starting_up:
+        global APP
         APP = QApplication([])
         icon_path = str(Path(__file__, '../jd.png').resolve())
         APP.setWindowIcon(QIcon(icon_path))
 
     the_browser = MobileBrowser()
     the_browser.load(QUrl(url))
+
+    if starting_up:
+        # On Unix/Linux Qt is configured to use the system locale settings by default. This can cause a conflict when using POSIX functions.
+        # http://doc.qt.io/qt-5/qcoreapplication.html#locale-settings
+        # 重设 locale, 否则某些依赖 locale 的代码可能产生错误, 如 Requests 中解析 cookie 时间的代码.
+        locale.setlocale(locale.LC_TIME, 'C')
 
     APP.exec()
 
