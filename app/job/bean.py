@@ -50,7 +50,7 @@ class Bean(Daka):
 
     def _get_token(self):
         html = self.session.get(self.index_url).text
-        pattern = r'pageConfig.token="(\d+)"'
+        pattern = r'token: "(\d+)"'
         token = common.find_value(pattern, html)
 
         if not token:
