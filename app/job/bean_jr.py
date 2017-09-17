@@ -15,8 +15,8 @@ class BeanJR(Bean):
 
         if r.ok:
             data = r.json()
-            signed = data['isSign']
-            sign_days = data['signNum']
+            signed = data['isFlag']
+            sign_days = data['signCount']
             self.logger.info('今天已签到: {}; 签到天数: {}'.format(signed, sign_days))
 
         return signed
