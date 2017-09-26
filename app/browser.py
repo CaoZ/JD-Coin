@@ -4,6 +4,7 @@ import urllib.request
 from http.cookies import SimpleCookie
 from pathlib import Path
 
+from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QIcon
 from PyQt5.QtNetwork import QNetworkProxy
@@ -12,6 +13,10 @@ from PyQt5.QtWidgets import QApplication
 from requests.cookies import RequestsCookieJar
 
 from config import config
+
+# 过滤掉一些不需要的 Qt WebEngine 日志输出
+# https://stackoverflow.com/questions/35894171/redirect-qdebug-output-to-file-with-pyqt5
+QtCore.qInstallMessageHandler(lambda *args: None)
 
 APP = None
 
