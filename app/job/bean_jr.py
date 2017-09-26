@@ -1,8 +1,8 @@
 from .bean import Bean
 
 
-class BeanJR(Bean):
-    job_name = '京东金融签到领京豆'
+class SignJR(Bean):
+    job_name = '京东金融签到领奖励'
 
     index_url = 'https://vip.jr.jd.com'
     info_url = 'https://vip.jr.jd.com/newSign/querySignRecord'
@@ -15,29 +15,25 @@ class BeanJR(Bean):
 
         if r.ok:
             data = r.json()
-            signed = data['isSign']
-            sign_days = data['signNum']
-            self.logger.info('今天已签到: {}; 签到天数: {}'.format(signed, sign_days))
+            signed = data['isFlag']
+            sign_days = data['signContinuity']
+            self.logger.info('今日已签到: {}; 签到天数: {}; 现有钢镚: {}'.format(signed, sign_days, data['accountBalance']))
 
         return signed
 
     def sign(self):
         headers = {'Referer': self.index_url}
         response = self.session.post(self.sign_url, headers=headers).json()
-        message = response['message']
-        sign_success = False
 
-        if response['success']:
-            sign_result = response['sign']
-            sign_success = sign_result['result']
+        sign_success = response['signSuccess']
+        sign_data = response['signResData']
 
-            if sign_success:
-                count = sign_result['num']
-                self.logger.info('签到成功, 获得 {} 个京豆.'.format(count))
-            else:
-                self.logger.error('签到未成功: {}'.format(message))
+        if sign_success and sign_data:
+            unit = ['', '京豆', '金币', '钢镚'][sign_data['rewardType']]
+            count = sign_data['thisAmount'] / 100 if sign_data['rewardType'] == 3 else sign_data['thisAmount']
+            self.logger.info('签到成功, 获得 {} 个{}.'.format(count, unit))
 
         else:
-            self.logger.error('签到失败: {}'.format(message))
+            self.logger.error('签到失败: Code={}'.format(response['resBusiCode']))
 
         return sign_success
