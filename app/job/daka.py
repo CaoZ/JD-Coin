@@ -11,7 +11,7 @@ class Daka:
     job_name = '小白卡钢镚打卡'
 
     index_url = 'https://bk.jd.com/m/channel/login/daka.html'
-    login_url = index_url
+    login_url = 'https://home.m.jd.com'
     sign_url = 'https://bk.jd.com/m/channel/login/clock.html'
     test_url = index_url
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
