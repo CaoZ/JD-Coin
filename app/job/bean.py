@@ -1,3 +1,5 @@
+from pyquery import PyQuery
+
 from . import common
 from .daka import Daka
 
@@ -11,22 +13,23 @@ class Bean(Daka):
     test_url = 'https://vip.jd.com/member/myJingBean/index.html'
     login_url = test_url
 
+    def __init__(self, session):
+        super().__init__(session)
+        self.page_data = ''
+
     def is_signed(self):
-        response = self.session.get(self.info_url).json()
-        signed = False
+        page_data = self._get_page_data()
+        signed = PyQuery(page_data)('.sign-in').has_class('signed')
 
-        if response['success']:
-            user_info = response['result']['userInfo']
+        detail = self.session.get(self.info_url).json()
+
+        if detail['success']:
+            user_info = detail['result']['userInfo']
             beans_count = user_info['userJingBeanNum']
-
-            ext_user_info = response['result']['extUserInfo']
-            signed = (ext_user_info['isSignIn'] == 'true')
-
             self.logger.info('今日已签到: {}; 现在有 {} 个京豆.'.format(signed, beans_count))
 
         else:
-            message = response['resultTips']
-            self.logger.error('获取京豆信息失败: {}'.format(message))
+            self.logger.info('今日已签到: {}'.format(signed))
 
         return signed
 
@@ -49,7 +52,7 @@ class Bean(Daka):
             return False
 
     def _get_token(self):
-        html = self.session.get(self.index_url).text
+        html = self._get_page_data()
         pattern = r'token:\s*"(\d+)"'
         token = common.find_value(pattern, html)
 
@@ -57,3 +60,9 @@ class Bean(Daka):
             raise Exception('token 未找到.')
 
         return token
+
+    def _get_page_data(self):
+        if not self.page_data:
+            self.page_data = self.session.get(self.index_url).text
+
+        return self.page_data

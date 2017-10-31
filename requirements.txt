@@ -1,2 +1,3 @@
 requests
 PyQT5
+pyquery
