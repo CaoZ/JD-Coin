@@ -7,7 +7,7 @@ from .daka import Daka
 class Bean(Daka):
     job_name = '京东会员页签到领京豆'
 
-    index_url = 'https://vip.jd.com'
+    index_url = 'https://vip.jd.com/home.html'
     info_url = 'https://vip.jd.com/member/getUserInfo.html'
     sign_url = 'https://vip.jd.com/common/signin.html'
     test_url = 'https://vip.jd.com/member/myJingBean/index.html'
