@@ -100,7 +100,7 @@
 | Bean | 京东会员页签到领京豆 |
 | SignJR | 京东金融签到领奖励 |
 | DataStation | 流量加油站签到领流量 |
-| RedPacket | 京东小金库现金红包 |
+| RedPacket | 京东小金库现金红包（已下线） |
 
 <br>
 

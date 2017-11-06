@@ -1,10 +1,13 @@
 import logging
 import os
 import pickle
+import sys
 import traceback
 from pathlib import Path
 
+import pkg_resources
 import requests
+from pkg_resources import DistributionNotFound
 
 from config import config
 from job import jobs_all
@@ -52,8 +55,7 @@ def make_session() -> requests.Session:
 
     if data_file.exists():
         try:
-            bytes = data_file.read_bytes()
-            cookies = pickle.loads(bytes)
+            cookies = pickle.loads(data_file.read_bytes())
             session.cookies = cookies
             logging.info('# 从文件加载 cookies 成功.')
         except Exception as e:
@@ -91,5 +93,16 @@ def proxy_patch():
 if __name__ == '__main__':
     if config.debug and os.getenv('HTTPS_PROXY'):
         proxy_patch()
+
+    requirements_file = Path(__file__).parents[1].joinpath('requirements.txt')
+    requirements = pkg_resources.parse_requirements(requirements_file.read_text())
+
+    for requirement in requirements:
+        try:
+            pkg_resources.require(requirement.name)
+        except DistributionNotFound as e:
+            print('需要的包 "{}" 未找到, 请安装后再来运行下~'.format(e.req))
+            print(e)
+            sys.exit(1)
 
     main()
