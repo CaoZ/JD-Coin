@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# encoding: utf-8
 import logging
 import os
 import pickle
@@ -5,7 +7,6 @@ import traceback
 from pathlib import Path
 
 import requests
-
 from config import config
 from job import jobs_all
 
@@ -18,6 +19,11 @@ def main():
 
     for job_class in jobs:
         job = job_class(session)
+
+        # 默认使用移动设备User-agent,否则使用PC版User-Agent
+        if not job.is_mobile:
+            job.session.headers.update({
+                'User-Agent': config.ua_pc})
 
         try:
             job.run()

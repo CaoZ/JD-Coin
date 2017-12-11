@@ -1,9 +1,10 @@
 import traceback
 
+import chrome as browser
+# import browser
+import job
 from requests import Session
 
-import browser
-import job
 from .common import find_value, RequestError
 
 
@@ -16,6 +17,7 @@ class Daka:
     test_url = index_url
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
     logger = job.logger
+    is_mobile = True
 
     def __init__(self, session: Session):
         self.session = session

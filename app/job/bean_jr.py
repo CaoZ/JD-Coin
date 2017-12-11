@@ -1,3 +1,5 @@
+from json.decoder import JSONDecodeError
+
 from .bean import Bean
 
 
@@ -8,6 +10,7 @@ class SignJR(Bean):
     info_url = 'https://vip.jr.jd.com/newSign/querySignRecord'
     sign_url = 'https://vip.jr.jd.com/newSign/doSign'
     test_url = 'https://vip.jr.jd.com/coupon/myIntegralDetail'
+    is_mobile = False
 
     def is_signed(self):
         r = self.session.post(self.info_url)
@@ -15,10 +18,12 @@ class SignJR(Bean):
 
         if r.ok:
             data = r.json()
-            signed = data['isFlag']
-            sign_days = data['signContinuity']
-            self.logger.info('今日已签到: {}; 签到天数: {}; 现有钢镚: {}'.format(signed, sign_days, data['accountBalance']))
-
+            try:
+                signed = data['isFlag']
+                sign_days = data['signContinuity']
+                self.logger.info('今日已签到: {}; 签到天数: {}; 现有钢镚: {}'.format(signed, sign_days, data['accountBalance']))
+            except JSONDecodeError:
+                return False
         return signed
 
     def sign(self):

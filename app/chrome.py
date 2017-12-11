@@ -8,7 +8,6 @@ from selenium import webdriver
 
 
 class MobileChrome:
-
     WIDTH = 480
     HEIGHT = 800
     UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
@@ -24,7 +23,7 @@ class MobileChrome:
         self.cookies = RequestsCookieJar()
         self.logger = job.logger
 
-    def login(self,url = 'https://home.m.jd.com'):
+    def login(self, url='https://home.m.jd.com'):
         '''
         京东触屏版登陆
         :param usrname:
@@ -49,7 +48,6 @@ class MobileChrome:
         self.__cookies_to_requests__()
         print('登陆成功')
 
-
     def __cookies_to_requests__(self):
         # try:
         #     self.driver.find_elements_by_id('userName')
@@ -67,35 +65,34 @@ class MobileChrome:
             #                 domain=cookie['domain'],path=cookie['path'],
             #                  expires=cookie['expiry'],rest={'HttpOnly': cookie['httpOnly']},
             #                  secure=cookie['secure'])
-            self.cookies.set(cookiename,cookieval,**cookie)
+            self.cookies.set(cookiename, cookieval, **cookie)
             # self.cookies.set_cookie(cookie)
 
-    def __standardize_cookie__(self,cookie):
-        c= cookie.copy()
-        need_fix=[('expires','expiry')]
+    def __standardize_cookie__(self, cookie):
+        c = cookie.copy()
+        need_fix = [('expires', 'expiry')]
         try:
             c['rest'] = {'HttpOnly': c.pop('httpOnly')}
         except KeyError:
             pass
-        for (newkey,oldkey) in need_fix:
+        for (newkey, oldkey) in need_fix:
             try:
 
                 c[newkey] = c.pop(oldkey)
-            except (KeyError,TypeError):
+            except (KeyError, TypeError):
                 pass
         return c
 
-
-
     def quit(self):
         self.driver.close()
+
 
 class PcChrome(MobileChrome):
     UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
     WIDTH = 1024
     HEIGHT = 768
 
-    def login(self,url):
+    def login(self, url):
         d = self.driver
         d.get(url)
         switcher = d.find_element_by_link_text('账户登录')
@@ -118,7 +115,8 @@ class PcChrome(MobileChrome):
             input('请输入账户密码')
         self.__cookies_to_requests__()
 
-def get_cookies(url)-> RequestsCookieJar:
+
+def get_cookies(url) -> RequestsCookieJar:
     host = urlparse(url).netloc
     if host[-8:] == 'm.jd.com':
         bot = MobileChrome()
@@ -127,4 +125,4 @@ def get_cookies(url)-> RequestsCookieJar:
     bot.login(url)
     cookiejar = bot.cookies
     bot.quit()
-    return  cookiejar
+    return cookiejar
