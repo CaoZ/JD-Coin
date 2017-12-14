@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-import hashlib
-import http.client
-import urllib.request
-import urllib
-import json
 import base64
+import hashlib
+import json
+import urllib
+import urllib.request
 
 
 def md5str(str):  # md5加密字符串
@@ -19,7 +18,7 @@ def md5(byte):  # md5加密byte
 
 
 class DamatuApi():
-    #原版
+    # 原版
     # ID = '40838'
     # KEY = 'ca9507e17e8d5ddf7c57cd18d8d33010'
     ID = '52168'

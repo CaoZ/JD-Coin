@@ -5,6 +5,7 @@ import job
 from config import config
 from requests.cookies import RequestsCookieJar
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 
 
 class MobileChrome:
@@ -109,7 +110,7 @@ class PcChrome(MobileChrome):
                 nickname = self.driver.find_element_by_css_selector('#shortcut-2014 a[class=nickname]')
                 self.nickname = nickname.text
                 self.logger.info('登陆成功，欢迎{}'.format(self.nickname))
-            except IOError:
+            except NoSuchElementException:
                 self.logger.warn('登陆异常，请检查是否需要验证码')
         else:
             input('请输入账户密码')
