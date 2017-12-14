@@ -117,7 +117,7 @@ if __name__ == "__main__":
     # 调用类型实例：
     # 1.实例化类型 参数是打码兔用户账号和密码
     # dmt = DamatuApi("test", "test")
-    dmt = DamatuApi("vicnent2016", "1Ja3BIZH2Jny")
+    dmt = DamatuApi("", "")
     # 2.调用方法：
     print(dmt.getBalance())  # 查询余额
     # print(dmt.decode('Catcha.png', 200))  # 上传打码
