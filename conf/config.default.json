@@ -4,5 +4,6 @@
     "username": "",
     "password": ""
   },
-  "jobs_skip": ["DataStation"]
+  "jobs_skip": ["DataStation"],
+  "headless": false
 }

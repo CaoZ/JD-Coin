@@ -21,12 +21,14 @@ class Config:
         }
 
         self.jobs_skip = []
+        self.headless = False
 
     @classmethod
     def load(cls, d):
         the_config = Config()
 
         the_config.debug = d.get('debug', False)
+        the_config.headless = d.get('headless', False)
 
         try:
             the_config.jd = {

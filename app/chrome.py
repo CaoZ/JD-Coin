@@ -15,7 +15,8 @@ class MobileChrome:
 
     def __init__(self):
         options = webdriver.ChromeOptions()
-        # chrome_option.add_argument('--headless')
+        if config.headless:
+            options.add_argument('--headless')
         options.add_argument('lang=zh_CN.UTF-8')
         options.add_argument('user-agent={0}'.format(self.UA))
 
