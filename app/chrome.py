@@ -20,7 +20,6 @@ class MobileChrome:
                 options.add_argument('--headless')
             options.add_argument('lang=zh_CN.UTF-8')
             options.add_argument('user-agent={0}'.format(self.UA))
-
             self.driver = webdriver.Chrome(chrome_options=options)
         except WebDriverException:
             options = webdriver.FirefoxOptions()
