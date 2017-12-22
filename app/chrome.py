@@ -5,7 +5,7 @@ import job
 from config import config
 from requests.cookies import RequestsCookieJar
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException,WebDriverException
 
 
 class MobileChrome:
@@ -14,13 +14,20 @@ class MobileChrome:
     UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
 
     def __init__(self):
-        options = webdriver.ChromeOptions()
-        if config.headless:
-            options.add_argument('--headless')
-        options.add_argument('lang=zh_CN.UTF-8')
-        options.add_argument('user-agent={0}'.format(self.UA))
+        try:
+            options = webdriver.ChromeOptions()
+            if config.headless:
+                options.add_argument('--headless')
+            options.add_argument('lang=zh_CN.UTF-8')
+            options.add_argument('user-agent={0}'.format(self.UA))
 
-        self.driver = webdriver.Chrome(chrome_options=options)
+            self.driver = webdriver.Chrome(chrome_options=options)
+        except WebDriverException:
+            options = webdriver.FirefoxOptions()
+            options.set_headless(True)
+            options.set_preference('general.useragent.override',self.UA)
+            options.set_preference('intl.accept_languages','zh-cn,zh,en-us,en')
+            self.driver = webdriver.Firefox(options=options)
         self.driver.set_window_size(width=self.WIDTH, height=self.HEIGHT)
         self.cookies = RequestsCookieJar()
         self.logger = job.logger
