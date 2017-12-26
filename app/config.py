@@ -5,7 +5,8 @@ import sys
 from base64 import b85decode
 from pathlib import Path
 
-log_format = '%(asctime)s %(name)s[%(module)s] %(levelname)s: %(message)s'
+# log_format = '%(asctime)s %(name)s[%(module)s] %(levelname)s: %(message)s'
+log_format = '%(asctime)s %(name)s %(levelname)s: %(message)s'
 logging.basicConfig(format=log_format, level=logging.INFO)
 
 

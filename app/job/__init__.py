@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger('jobs')
+logger = logging.getLogger('JD-Coin')
 
 from config import config
 from .bean import Bean
@@ -9,6 +9,7 @@ from .bean_jr import SignJR
 from .daka_app import DakaApp
 from .data_station import DataStation
 from .double_jr import DoubleSign_JR
+from .jdstock_sign import JDStock_Sign
 
 __all__ = ['jobs_all', 'logger']
 
@@ -16,7 +17,7 @@ __all__ = ['jobs_all', 'logger']
 # jobs_mobile = [DakaApp, BeanApp, DataStation,DoubleSign_JR]
 # jobs_web = [Bean, SignJR]
 # jobs_all = jobs_mobile + jobs_web
-jobs_all = [Bean, SignJR,DakaApp, BeanApp, DataStation,DoubleSign_JR]
+jobs_all = [Bean, SignJR, DakaApp, BeanApp, DataStation, JDStock_Sign, DoubleSign_JR]
 
 def set_logger():
     logger.propagate = False
