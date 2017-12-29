@@ -54,16 +54,16 @@ def make_session() -> requests.Session:
         'User-Agent': config.ua
     })
 
-    data_file = Path(__file__).parent.joinpath('../data/cookies')
+    data_file = Path(__file__).parent.joinpath('../data/' + config.cookiesname)
 
     if data_file.exists():
         try:
             bytes = data_file.read_bytes()
             cookies = pickle.loads(bytes)
             session.cookies = cookies
-            logging.info('# 从文件加载 cookies 成功.')
+            logging.info('# 从文件加载 %s 成功.', config.cookiesname)
         except Exception as e:
-            logging.info('# 未能成功载入 cookies, 从头开始~')
+            logging.info('# 未能成功载入 %s, 从头开始~', config.cookiesname)
 
     return session
 
@@ -73,7 +73,7 @@ def save_session(session):
 
     data_dir = Path(__file__).parent.joinpath('../data/')
     data_dir.mkdir(exist_ok=True)
-    data_file = data_dir.joinpath('cookies')
+    data_file = data_dir.joinpath(config.cookiesname)
     data_file.write_bytes(data)
 
 

@@ -13,6 +13,7 @@ logging.basicConfig(format=log_format, level=logging.INFO)
 class Config:
     def __init__(self):
         self.debug = False
+        self.headless = False
         self.log_format = log_format
         self.ua_pc = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
         self.ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
@@ -22,7 +23,7 @@ class Config:
         }
 
         self.jobs_skip = []
-        self.headless = False
+        self.cookiesname = 'cookies'
 
     @classmethod
     def load(cls, d):
@@ -49,6 +50,7 @@ class Config:
             the_config.jd['auto_submit'] = 1
 
         the_config.jobs_skip = d.get('jobs_skip', [])
+        the_config.cookiesname = d.get('cookiesname', 'cookies')
 
         return the_config
 

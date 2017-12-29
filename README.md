@@ -115,15 +115,41 @@
 | DataStation | 流量加油站签到领流量 |
 | RedPacket | 京东小金库现金红包（已下线） |
 
-<br>
-
 
 ### 设置网络代理
 
 设置环境变量 `HTTP_PROXY` / `HTTPS_PROXY` 即可。
 
-<br>
 
+### 多账号登陆
+1. 配置账号
+账号1：config1.config
+```json
+{
+  "debug": false,
+  "jd": {
+    "username": "username1",
+    "password": "password1"
+  },
+  "cookiesname": "cookies1"
+}
+```
+账号2：config2.config
+```json
+{
+  "debug": false,
+  "jd": {
+    "username": "username2",
+    "password": "password2"
+  },
+  "cookiesname": "cookies2"
+}
+```
+2. 运行:
+```
+python app/main.py -c config1.cofing
+python app/main.py -c config2.cofing
+```
 
 ## Example
 
