@@ -22,46 +22,39 @@
 
 ## 说明
 
-直接登录京东较复杂，不易实现，因此采用了以下三种方式进行登录：
+直接登录京东较复杂，不易实现，因此采用了[三种方式(参见Wiki)](https://github.com/vc5/JD-Coin/wiki/%E7%99%BB%E5%BD%95%E6%96%B9%E5%BC%8F))进行登录：
 
-#### 方式一：
-> 2017-12-08 更新：即现在的默认分支`headless`
+#### 默认登录方式：使用selenium调用chrome进行登陆
 
-使用selenium调用chrome进行登陆
 ##### 需要手动安装的依赖
 1. Chrome
 2. ChromeDriver  
 请下载[ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads)后，确保该可执行文件可以在`PATH`中被找到
 
-#####TODO
-1. 实现headless模式下登陆，通过第三方验证码识别解决验证码问题
-2. 在解决验证码的基础上，添加邮件报警功能
-
-#### 方式二：
-
-> 2017-08-13 更新
-
-借助内置浏览器登录。本方式中使用 `PyQt5` 的 `WebEngine` 构建了个简易浏览器，在其中登录京东即可。
-
-登录后关掉浏览器窗口，程序会获取到 cookie，然后就可以继续签到了~
-
-![浏览器方式登录](docs/browser.png)
 
 
-#### 方式三：
-
-> 2017-08-13 更新：目前此方式[依赖的包](https://github.com/gera2ld/qqlib)存在一些问题，暂不可用，请使用「浏览器方式」登录。
-
-通过第三方登录的方式，登录了[绑定的 QQ 帐号](https://safe.jd.com/union/index.action)，也就登录了京东。
-
-在登录 QQ 时有时会出现需要输入验证码的情况，若是在 [iTerm2](http://www.iterm2.com/) 中运行，验证码图片会显示在终端中，直接输入即可；否则会调用系统关联应用打开验证码图片。
-
-![通过 QQ 登录](docs/qq.png)
 
 
 ## 其他
 
-### 配置文件说明
+### 配置文件说明（支持多账号）
+```json
+{
+    "debug": true,
+    "headless": false,
+    "jd": [
+        {
+            "username": "username1",
+            "password": "password1"
+        },
+        {
+            "username": "username2",
+            "password": "password2"
+        }
+    ],
+    "jobs_skip": []
+}
+```
 
 #### 帐号/密码：
 
@@ -69,17 +62,6 @@
 
 将默认配置文件复制为`config.json`，然后使用 [Base85](https://en.wikipedia.org/wiki/Ascii85) 方式将对应的帐号、密码编码后填入配置文件中即可，完成后是这样子的：
 
-```json
-{
-  "debug": false,
-  "jd": {
-    "username": "b#rBMZeeX@",
-    "password": "aA9+EcW-iJ"
-  }
-}
-```
-
-（是不是比明文安全性多了一点点呢？^_^)
 
 编码示例（Python）：
 
@@ -121,24 +103,7 @@
 设置环境变量 `HTTP_PROXY` / `HTTPS_PROXY` 即可。
 
 
-### 账号配置实例（支持多账号）
-```json
-{
-    "debug": true,
-    "headless": false,
-    "jd": [
-        {
-            "username": "username1",
-            "password": "password1"
-        },
-        {
-            "username": "username2",
-            "password": "password2"
-        }
-    ],
-    "jobs_skip": []
-}
-```
+
 2. 运行:
 ```
 python app/main.py -c config.json
