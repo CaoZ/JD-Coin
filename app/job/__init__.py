@@ -2,7 +2,7 @@ import logging
 
 logger = logging.getLogger('JD-Coin')
 
-from config import config
+from config import log_format
 from .bean import Bean
 from .bean_app import BeanApp
 from .bean_jr import SignJR
@@ -23,7 +23,7 @@ def set_logger():
     logger.propagate = False
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
-    formatter = logging.Formatter(config.log_format)
+    formatter = logging.Formatter(log_format)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 

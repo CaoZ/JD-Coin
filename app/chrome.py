@@ -2,10 +2,9 @@ import time
 from urllib.parse import urlparse
 
 import job
-from config import config
 from requests.cookies import RequestsCookieJar
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException,WebDriverException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 
 
 class MobileChrome:
@@ -13,10 +12,11 @@ class MobileChrome:
     HEIGHT = 800
     UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
 
-    def __init__(self):
+    def __init__(self, signbot):
+        self.config = signbot.config
         try:
             options = webdriver.ChromeOptions()
-            if config.headless:
+            if self.config.headless:
                 options.add_argument('--headless')
             options.add_argument('lang=zh_CN.UTF-8')
             options.add_argument('user-agent={0}'.format(self.UA))
@@ -43,9 +43,9 @@ class MobileChrome:
         user_input = d.find_element_by_id('username')
         password_input = d.find_element_by_id('password')
         login_btn = d.find_element_by_id('loginBtn')
-        user_input.send_keys(config.jd['username'])
-        password_input.send_keys(config.jd['password'])
-        if config.jd['password'] != '':
+        user_input.send_keys(self.config.jd['username'])
+        password_input.send_keys(self.config.jd['password'])
+        if self.config.jd['password'] != '':
             login_btn.click()
             time.sleep(6)
             nickname = self.driver.find_element_by_css_selector('#myHeader span[class$="name_text"]')
@@ -108,9 +108,9 @@ class PcChrome(MobileChrome):
         user_input = d.find_element_by_id('loginname')
         password_input = d.find_element_by_id('nloginpwd')
         login_btn = d.find_element_by_id('loginsubmit')
-        user_input.send_keys(config.jd['username'])
-        password_input.send_keys(config.jd['password'])
-        if config.jd['password'] != '':
+        user_input.send_keys(self.config.jd['username'])
+        password_input.send_keys(self.config.jd['password'])
+        if self.config.jd['password'] != '':
             login_btn.click()
             time.sleep(6)
             try:
@@ -124,12 +124,12 @@ class PcChrome(MobileChrome):
         self.__cookies_to_requests__()
 
 
-def get_cookies(url) -> RequestsCookieJar:
+def get_cookies(url, signbot) -> RequestsCookieJar:
     host = urlparse(url).netloc
     if host[-8:] == 'm.jd.com':
-        bot = MobileChrome()
+        bot = MobileChrome(signbot)
     else:
-        bot = PcChrome()
+        bot = PcChrome(signbot)
     bot.login(url)
     cookiejar = bot.cookies
     bot.quit()

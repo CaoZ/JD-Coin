@@ -3,7 +3,6 @@ import traceback
 import chrome as browser
 # import browser
 import job
-from requests import Session
 
 from .common import find_value, RequestError
 
@@ -19,8 +18,9 @@ class Daka:
     logger = job.logger
     is_mobile = True
 
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self, bot):
+        self.bot = bot
+        self.session = bot.session
         self.job_success = False
 
     def run(self):
@@ -55,7 +55,7 @@ class Daka:
             return True
 
     def login(self):
-        cookies = browser.get_cookies(self.login_url)
+        cookies = browser.get_cookies(url=self.login_url, signbot=self.bot)
         self.session.cookies.update(cookies)
 
     def is_signed(self):

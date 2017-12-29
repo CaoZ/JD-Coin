@@ -1,10 +1,16 @@
 {
-  "debug": false,
+  "debug": true,
   "headless": false,
-  "jd": {
-    "username": "",
-    "password": ""
-  },
-  "jobs_skip": ["DataStation"]
-
+  "jd": [
+    {
+      "username": "username1",
+      "password": "password1"
+    },
+    {
+      "username": "username2",
+      "password": "password2"
+    }
+  ],
+  "jobs_skip": []
 }
+

@@ -23,7 +23,7 @@ class Config:
         }
 
         self.jobs_skip = []
-        self.cookiesname = 'cookies'
+
 
     @classmethod
     def load(cls, d):
@@ -33,9 +33,11 @@ class Config:
         the_config.headless = d.get('headless', False)
 
         try:
+            real_username = b85decode(d['jd']['username']).decode()
+            real_password = b85decode(d['jd']['password']).decode()
             the_config.jd = {
-                'username': b85decode(d['jd']['username']).decode(),
-                'password': b85decode(d['jd']['password']).decode()
+                'username': real_username,
+                'password': real_password
             }
         except Exception as e:
             logging.error('获取京东帐号出错: ' + repr(e))
@@ -50,8 +52,8 @@ class Config:
             the_config.jd['auto_submit'] = 1
 
         the_config.jobs_skip = d.get('jobs_skip', [])
-        the_config.cookiesname = d.get('cookiesname', 'cookies')
-
+        # the_config.cookiesname = real_username
+        the_config.cookiesname = '{0}.cookies'.format(real_username)
         return the_config
 
 
@@ -78,10 +80,21 @@ def load_config():
         config_dict = json.loads(config_file.read_text())
     except Exception as e:
         sys.exit('# 错误: 配置文件载入失败: {}'.format(e))
+    return config_dict
+    # the_config = Config.load(config_dict)
 
-    the_config = Config.load(config_dict)
-
-    return the_config
+    # return the_config
 
 
-config = load_config()
+def get_users(config_dict: dict):
+    users = list()
+    for user in config_dict['jd']:
+        config_single = config_dict.copy()
+        config_single['jd'] = user
+        cc = Config().load(config_single)
+        users.append(cc)
+    return users
+
+
+# config为未作修改的原生配置对象，加载自config.json
+config_dict = load_config()

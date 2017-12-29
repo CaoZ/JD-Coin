@@ -25,7 +25,7 @@
 直接登录京东较复杂，不易实现，因此采用了以下三种方式进行登录：
 
 #### 方式一：
-> 2017-12-08 
+> 2017-12-08 更新：即现在的默认分支`headless`
 
 使用selenium调用chrome进行登陆
 ##### 需要手动安装的依赖
@@ -39,7 +39,7 @@
 
 #### 方式二：
 
-> 2017-08-13 更新：即现在的默认分支`browser`
+> 2017-08-13 更新
 
 借助内置浏览器登录。本方式中使用 `PyQt5` 的 `WebEngine` 构建了个简易浏览器，在其中登录京东即可。
 
@@ -121,34 +121,28 @@
 设置环境变量 `HTTP_PROXY` / `HTTPS_PROXY` 即可。
 
 
-### 多账号登陆
-1. 配置账号
-账号1：config1.config
+### 账号配置实例（支持多账号）
 ```json
 {
-  "debug": false,
-  "jd": {
-    "username": "username1",
-    "password": "password1"
-  },
-  "cookiesname": "cookies1"
-}
-```
-账号2：config2.config
-```json
-{
-  "debug": false,
-  "jd": {
-    "username": "username2",
-    "password": "password2"
-  },
-  "cookiesname": "cookies2"
+    "debug": true,
+    "headless": false,
+    "jd": [
+        {
+            "username": "username1",
+            "password": "password1"
+        },
+        {
+            "username": "username2",
+            "password": "password2"
+        }
+    ],
+    "jobs_skip": []
 }
 ```
 2. 运行:
 ```
-python app/main.py -c config1.cofing
-python app/main.py -c config2.cofing
+python app/main.py -c config.json
+
 ```
 
 ## Example
