@@ -33,9 +33,6 @@
 2. ChromeDriver  
 请下载[ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads)后，确保该可执行文件可以在`PATH`中被找到
 
-#####TODO
-1. 实现headless模式下登陆，通过第三方验证码识别解决验证码问题
-2. 在解决验证码的基础上，添加邮件报警功能
 
 #### 方式二：
 
@@ -61,7 +58,24 @@
 
 ## 其他
 
-### 配置文件说明
+### 配置文件说明（支持多账号）
+```json
+{
+    "debug": true,
+    "headless": false,
+    "jd": [
+        {
+            "username": "username1",
+            "password": "password1"
+        },
+        {
+            "username": "username2",
+            "password": "password2"
+        }
+    ],
+    "jobs_skip": []
+}
+```
 
 #### 帐号/密码：
 
@@ -69,17 +83,6 @@
 
 将默认配置文件复制为`config.json`，然后使用 [Base85](https://en.wikipedia.org/wiki/Ascii85) 方式将对应的帐号、密码编码后填入配置文件中即可，完成后是这样子的：
 
-```json
-{
-  "debug": false,
-  "jd": {
-    "username": "b#rBMZeeX@",
-    "password": "aA9+EcW-iJ"
-  }
-}
-```
-
-（是不是比明文安全性多了一点点呢？^_^)
 
 编码示例（Python）：
 
@@ -121,24 +124,7 @@
 设置环境变量 `HTTP_PROXY` / `HTTPS_PROXY` 即可。
 
 
-### 账号配置实例（支持多账号）
-```json
-{
-    "debug": true,
-    "headless": false,
-    "jd": [
-        {
-            "username": "username1",
-            "password": "password1"
-        },
-        {
-            "username": "username2",
-            "password": "password2"
-        }
-    ],
-    "jobs_skip": []
-}
-```
+
 2. 运行:
 ```
 python app/main.py -c config.json
