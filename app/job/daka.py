@@ -1,6 +1,6 @@
 import traceback
 
-from app import chrome as browser
+import chrome as browser
 # import browser
 
 from .common import find_value, RequestError

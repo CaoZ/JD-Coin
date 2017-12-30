@@ -1,6 +1,5 @@
 
 
-from app.config import log_format
 from .bean import Bean
 from .bean_app import BeanApp
 from .bean_jr import SignJR
