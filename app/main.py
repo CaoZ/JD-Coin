@@ -7,8 +7,8 @@ import traceback
 from pathlib import Path
 
 import requests
-from config import config_dict, get_users
-from job import jobs_all
+from app.config import config_dict, get_users
+from app.job import jobs_all
 
 
 class SignBot:

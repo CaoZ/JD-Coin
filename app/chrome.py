@@ -56,6 +56,9 @@ class MobileChrome:
         self.__cookies_to_requests__()
         print('登陆成功')
 
+    def load_session(self):
+        pass
+
     def __cookies_to_requests__(self):
         # try:
         #     self.driver.find_elements_by_id('userName')

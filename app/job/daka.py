@@ -1,8 +1,7 @@
 import traceback
 
-import chrome as browser
+from app import chrome as browser
 # import browser
-import job
 
 from .common import find_value, RequestError
 
@@ -15,13 +14,13 @@ class Daka:
     sign_url = 'https://bk.jd.com/m/channel/login/clock.html'
     test_url = index_url
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
-    logger = job.logger
     is_mobile = True
 
     def __init__(self, bot):
         self.bot = bot
         self.session = bot.session
         self.job_success = False
+        self.logger = bot.config.logger
 
     def run(self):
         self.logger.info('Job Start: {}'.format(self.job_name))

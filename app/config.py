@@ -4,17 +4,26 @@ import logging
 import sys
 from base64 import b85decode
 from pathlib import Path
+import logging
 
-# log_format = '%(asctime)s %(name)s[%(module)s] %(levelname)s: %(message)s'
+#日志配置
+logger = logging.getLogger('JD-Coin')
 log_format = '%(asctime)s %(name)s %(levelname)s: %(message)s'
-logging.basicConfig(format=log_format, level=logging.INFO)
+# logging.basicConfig(format=log_format, level=logging.INFO)
+logger.propagate = False
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter(log_format)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 
 
 class Config:
     def __init__(self):
         self.debug = False
         self.headless = False
-        self.log_format = log_format
+        self.logger = logger
         self.ua_pc = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
         self.ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
         self.jd = {
@@ -27,6 +36,7 @@ class Config:
 
     @classmethod
     def load(cls, d):
+
         the_config = Config()
 
         the_config.debug = d.get('debug', False)
@@ -35,18 +45,19 @@ class Config:
         try:
             real_username = b85decode(d['jd']['username']).decode()
             real_password = b85decode(d['jd']['password']).decode()
+            the_config.logger = logger.getChild(real_username)
             the_config.jd = {
                 'username': real_username,
                 'password': real_password
             }
         except Exception as e:
-            logging.error('获取京东帐号出错: ' + repr(e))
+            logger.error('获取京东帐号出错: ' + repr(e))
 
         if not (the_config.jd['username'] and the_config.jd['password']):
             # 有些页面操作还是有用的, 比如移动焦点到输入框... 滚动页面到登录表单位置等
             # 所以不禁止 browser 的 auto_login 动作了, 但两项都有才自动提交, 否则只进行自动填充动作
             the_config.jd['auto_submit'] = 0  # used in js
-            logging.info('用户名/密码未找到, 自动登录功能将不可用.')
+            logger.info('用户名/密码未找到, 自动登录功能将不可用.')
 
         else:
             the_config.jd['auto_submit'] = 1
@@ -63,13 +74,13 @@ def load_config():
     args = parser.parse_args()
 
     config_name = args.config or 'config.json'
-    logging.info('使用配置文件 "{}".'.format(config_name))
+    logger.info('使用配置文件 "{}".'.format(config_name))
 
     config_file = Path(__file__).parent.joinpath('../conf/', config_name)
 
     if not config_file.exists():
         config_name = 'config.default.json'
-        logging.warning('配置文件不存在, 使用默认配置文件 "{}".'.format(config_name))
+        logger.warning('配置文件不存在, 使用默认配置文件 "{}".'.format(config_name))
         config_file = config_file.parent.joinpath(config_name)
 
     try:
