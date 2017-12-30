@@ -1,7 +1,6 @@
 import time
 from urllib.parse import urlparse
 
-import job
 from requests.cookies import RequestsCookieJar
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
@@ -29,7 +28,7 @@ class MobileChrome:
             self.driver = webdriver.Firefox(options=options)
         self.driver.set_window_size(width=self.WIDTH, height=self.HEIGHT)
         self.cookies = RequestsCookieJar()
-        self.logger = job.logger
+        self.logger = signbot.config.logger
 
     def login(self, url='https://home.m.jd.com'):
         '''
