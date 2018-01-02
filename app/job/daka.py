@@ -1,9 +1,10 @@
 import traceback
 
 import chrome as browser
-# import browser
-
 from .common import find_value, RequestError
+
+
+# import browser
 
 
 class Daka:
@@ -20,7 +21,7 @@ class Daka:
         self.bot = bot
         self.session = bot.session
         self.job_success = False
-        self.logger = bot.config.logger
+        self.logger = bot.user.logger
 
     def run(self):
         self.logger.info('Job Start: {}'.format(self.job_name))

@@ -14,6 +14,4 @@ __all__ = ['jobs_all']
 # jobs_mobile = [DakaApp, BeanApp, DataStation,DoubleSign_JR]
 # jobs_web = [Bean, SignJR]
 # jobs_all = jobs_mobile + jobs_web
-jobs_all = [Bean, SignJR, DakaApp, BeanApp, DataStation, JDStock_Sign, DoubleSign_JR]
-
-
+jobs_all = [Bean, SignJR, DakaApp, BeanApp, DataStation, JDStock_Sign]

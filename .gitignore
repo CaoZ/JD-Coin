@@ -97,6 +97,6 @@ ENV/
 #############################################
 
 /conf/
-!/conf/config.default.json
+!/conf/config.default.ini
 
 /data/

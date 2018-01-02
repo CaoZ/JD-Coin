@@ -32,7 +32,7 @@ class DoubleSign_JR(Daka):
     def sign(self):
         r = self.session.get(self.sign_url,params={'sid':self.sid})
         as_json = r.json()
-        isSucces = not as_json['status'] #status 0 签到成功，1金融未签到
+        isSucces = not as_json['status']  # status 0 签到成功，1金融未签到 2京东客户端未签到
         if isSucces:
             self.logger.info('双签成功')
         return isSucces

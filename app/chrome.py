@@ -12,10 +12,11 @@ class MobileChrome:
     UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2 like Mac OS X) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0 Mobile/15C114 Safari/604.1'
 
     def __init__(self, signbot):
-        self.config = signbot.config
+        self.bot = signbot
+        self.user = signbot.user
         try:
             options = webdriver.ChromeOptions()
-            if self.config.headless:
+            if self.user.headless:
                 options.add_argument('--headless')
             options.add_argument('lang=zh_CN.UTF-8')
             options.add_argument('user-agent={0}'.format(self.UA))
@@ -28,7 +29,7 @@ class MobileChrome:
             self.driver = webdriver.Firefox(options=options)
         self.driver.set_window_size(width=self.WIDTH, height=self.HEIGHT)
         self.cookies = RequestsCookieJar()
-        self.logger = signbot.config.logger
+        self.logger = self.user.logger
 
     def login(self, url='https://home.m.jd.com'):
         '''
@@ -42,8 +43,8 @@ class MobileChrome:
         user_input = d.find_element_by_id('username')
         password_input = d.find_element_by_id('password')
         login_btn = d.find_element_by_id('loginBtn')
-        user_input.send_keys(self.config.jd['username'])
-        password_input.send_keys(self.config.jd['password'])
+        user_input.send_keys(self.user.username)
+        password_input.send_keys(self.user.password)
         if self.config.jd['password'] != '':
             login_btn.click()
             time.sleep(6)
@@ -52,17 +53,13 @@ class MobileChrome:
             self.logger.info('登陆成功，欢迎{}'.format(self.nickname))
         else:
             input('请输入账户密码')
-        self.__cookies_to_requests__()
+        self.save_cookies()
         print('登陆成功')
 
     def load_session(self):
         pass
 
-    def __cookies_to_requests__(self):
-        # try:
-        #     self.driver.find_elements_by_id('userName')
-        # except IOError:
-        #     print('哈哈')
+    def save_cookies(self):
         cookies_list = self.driver.get_cookies()
         for cookie in cookies_list:
             try:
@@ -71,14 +68,15 @@ class MobileChrome:
                 cookieval = cookie.pop('value')
             except KeyError:
                 pass
-            # self.cookies.set(name=cookie['name'],value=cookie['value'],
-            #                 domain=cookie['domain'],path=cookie['path'],
-            #                  expires=cookie['expiry'],rest={'HttpOnly': cookie['httpOnly']},
-            #                  secure=cookie['secure'])
             self.cookies.set(cookiename, cookieval, **cookie)
-            # self.cookies.set_cookie(cookie)
 
     def __standardize_cookie__(self, cookie):
+        '''
+        将webdriver.get_cookies返回的cookie转换为
+        兼容RequestsCookieJar的cookie
+        :param cookie:
+        :return a single cookie:
+        '''
         c = cookie.copy()
         need_fix = [('expires', 'expiry')]
         try:
@@ -110,9 +108,9 @@ class PcChrome(MobileChrome):
         user_input = d.find_element_by_id('loginname')
         password_input = d.find_element_by_id('nloginpwd')
         login_btn = d.find_element_by_id('loginsubmit')
-        user_input.send_keys(self.config.jd['username'])
-        password_input.send_keys(self.config.jd['password'])
-        if self.config.jd['password'] != '':
+        user_input.send_keys(self.user.username)
+        password_input.send_keys(self.user.password)
+        if self.user.username != '':
             login_btn.click()
             time.sleep(6)
             try:
@@ -123,7 +121,7 @@ class PcChrome(MobileChrome):
                 self.logger.warn('登陆异常，请检查是否需要验证码')
         else:
             input('请输入账户密码')
-        self.__cookies_to_requests__()
+        self.save_cookies()
 
 
 def get_cookies(url, signbot) -> RequestsCookieJar:

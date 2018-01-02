@@ -7,15 +7,17 @@ import traceback
 from pathlib import Path
 
 import requests
-from config import config_dict, get_users
+
+from config import users
 from job import jobs_all
 
 
 class SignBot:
 
     def __init__(self, jd_user):
-        self.config = jd_user
+        self.user = jd_user
         self.session = self.make_session(jd_user)
+        self.job_list = [job for job in jobs_all if job.__name__ not in self.user.jobs_skip]
 
     def get_config(self, config):
         pass
@@ -24,16 +26,15 @@ class SignBot:
         pass
 
     def sign(self):
-        jobs = [job for job in jobs_all if job.__name__ not in self.config.jobs_skip]
         jobs_failed = []
 
-        for job_class in jobs:
+        for job_class in self.job_list:
             job = job_class(self)
 
             # 默认使用移动设备User-agent,否则使用PC版User-Agent
             if not job.is_mobile:
                 job.session.headers.update({
-                    'User-Agent': self.config.ua_pc})
+                    'User-Agent': self.user.ua_pc})
 
             try:
                 job.run()
@@ -45,7 +46,7 @@ class SignBot:
                 jobs_failed.append(job.job_name)
 
         print('=================================')
-        print('= 任务数: {}; 失败数: {}'.format(len(jobs), len(jobs_failed)))
+        print('= 任务数: {}; 失败数: {}'.format(len(self.job_list), len(jobs_failed)))
 
         if jobs_failed:
             print('= 失败的任务: {}'.format(jobs_failed))
@@ -81,15 +82,14 @@ class SignBot:
 
         data_dir = Path(__file__).parent.joinpath('../data/')
         data_dir.mkdir(exist_ok=True)
-        data_file = data_dir.joinpath(self.config.cookiesname)
+        data_file = data_dir.joinpath(self.user.cookiesname)
         data_file.write_bytes(data)
 
 
-def main(config):
-    if config_dict['debug'] and os.getenv('HTTPS_PROXY'):
+def main():
+    if os.getenv('HTTPS_PROXY'):
         proxy_patch()
-    jd_users = get_users(config_dict)
-    for jd_user in jd_users:
+    for jd_user in users:
         bot = SignBot(jd_user)
         bot.sign()
 
@@ -121,4 +121,4 @@ def proxy_patch():
 
 
 if __name__ == '__main__':
-    main(config_dict)
+    main()
