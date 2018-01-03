@@ -39,13 +39,15 @@
 
 ### 配置文件说明(大小写敏感)
 `DEFAULT`下的配置会作为默认值，用户自定义的值会覆盖DEFAULT所指定的值，添加多用户，只需要按照格式添加新的Section就好了
+
+
 `config.ini`
 ```ini
 [DEFAULT]
 Debug = yes
 Headless = no
 ;跳过任务的格式“Bean|SignJR”
-Jobs_Skip:  = no
+Jobs_Skip  = no
 Enable = yes
 
 按以下格式填写用户名和密码
