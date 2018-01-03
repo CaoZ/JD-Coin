@@ -22,51 +22,47 @@
 
 ## 说明
 
-直接登录京东较复杂，不易实现，因此采用了以下两种方式进行登录：
+直接登录京东较复杂，不易实现，因此采用了[三种方式(参见Wiki)](https://github.com/vc5/JD-Coin/wiki/%E7%99%BB%E5%BD%95%E6%96%B9%E5%BC%8F))进行登录：
 
-#### 方式一：
+#### 默认登录方式：使用selenium调用chrome进行登陆
 
-> 2017-08-13 更新：即现在的默认分支`browser`。
-
-借助内置浏览器登录。本方式中使用 `PyQt5` 的 `WebEngine` 构建了个简易浏览器，在其中登录京东即可。
-
-登录后关掉浏览器窗口，程序会获取到 cookie，然后就可以继续签到了~
-
-![浏览器方式登录](docs/browser.png)
+##### 需要手动安装的依赖
+1. Chrome
+2. ChromeDriver  
+请下载[ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads)后，确保该可执行文件可以在`PATH`中被找到
 
 
-#### 方式二：
 
-> 2017-08-13 更新：目前此方式[依赖的包](https://github.com/gera2ld/qqlib)存在一些问题，暂不可用，请使用「浏览器方式」登录。
-
-通过第三方登录的方式，登录了[绑定的 QQ 帐号](https://safe.jd.com/union/index.action)，也就登录了京东。
-
-在登录 QQ 时有时会出现需要输入验证码的情况，若是在 [iTerm2](http://www.iterm2.com/) 中运行，验证码图片会显示在终端中，直接输入即可；否则会调用系统关联应用打开验证码图片。
-
-![通过 QQ 登录](docs/qq.png)
 
 
 ## 其他
 
-### 配置文件说明
+### 配置文件说明(大小写敏感)
+`DEFAULT`下的配置会作为默认值，用户自定义的值会覆盖DEFAULT所指定的值，添加多用户，只需要按照格式添加新的Section就好了
+
+
+`config.ini`
+```ini
+[DEFAULT]
+Debug = yes
+Headless = no
+;跳过任务的格式“Bean|SignJR”
+Jobs_Skip  = no
+Enable = yes
+
+按以下格式填写用户名和密码
+[vincent]
+Username = adqwes123as
+Password = asd123zcasd
+Enable = no
+```
 
 #### 帐号/密码：
 
 可以将帐号/密码保存到配置文件中（若使用浏览器方式，可以只保存帐号），这样就不用在每次登录时手动输入了（虽然使用了 cookie 保存登录状态，但京东还是会每隔几天就让你重新登录的...）。
 
-将默认配置文件复制为`config.json`，然后使用 [Base85](https://en.wikipedia.org/wiki/Ascii85) 方式将对应的帐号、密码编码后填入配置文件中即可，完成后是这样子的：
+将默认配置文件复制为`config.ini`，然后使用 [Base85](https://en.wikipedia.org/wiki/Ascii85) 方式将对应的帐号、密码编码后填入配置文件中即可，完成后是这样子的：
 
-```json
-{
-  "debug": false,
-  "jd": {
-    "username": "b#rBMZeeX@",
-    "password": "aA9+EcW-iJ"
-  }
-}
-```
-
-（是不是比明文安全性多了一点点呢？^_^)
 
 编码示例（Python）：
 
@@ -80,14 +76,14 @@
 
 将想要跳过的任务填写到配置文件中的 `jobs_skip` 中即可。比如想跳过「小白卡钢镚打卡」任务，填写 `Daka` 即可：
 
-```json
-"jobs_skip": ["Daka"]
+```ini
+Jobs_skip = Daka
 ```
 
 跳过多个任务:
 
-```json
-"jobs_skip": ["DataStation", "Daka"]  
+```ini
+Jobs_skip=DataStation|Daka
 ```
 
 任务列表:
@@ -101,16 +97,20 @@
 | SignJR | 京东金融签到领奖励 |
 | DataStation | 流量加油站签到领流量 |
 | RedPacket | 京东小金库现金红包（已下线） |
-
-<br>
+|DoubleSign_JR|京东金融双签（已下线）|
 
 
 ### 设置网络代理
 
 设置环境变量 `HTTP_PROXY` / `HTTPS_PROXY` 即可。
 
-<br>
 
+
+2. 运行:
+```
+python app/main.py -c config.json
+
+```
 
 ## Example
 

@@ -1,10 +1,10 @@
 import traceback
 
-from requests import Session
-
-import browser
-import job
+import chrome as browser
 from .common import find_value, RequestError
+
+
+# import browser
 
 
 class Daka:
@@ -15,11 +15,13 @@ class Daka:
     sign_url = 'https://bk.jd.com/m/channel/login/clock.html'
     test_url = index_url
     job_gb_url = 'https://bk.jd.com/m/channel/login/recDakaGb.html'
-    logger = job.logger
+    is_mobile = True
 
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self, bot):
+        self.bot = bot
+        self.session = bot.session
         self.job_success = False
+        self.logger = bot.user.logger
 
     def run(self):
         self.logger.info('Job Start: {}'.format(self.job_name))
@@ -53,7 +55,7 @@ class Daka:
             return True
 
     def login(self):
-        cookies = browser.get_cookies(self.login_url)
+        cookies = browser.get_cookies(url=self.login_url, signbot=self.bot)
         self.session.cookies.update(cookies)
 
     def is_signed(self):

@@ -92,10 +92,11 @@ ENV/
 
 # IDE / Editors
 .idea/
+.vscode/
 
 #############################################
 
 /conf/
-!/conf/config.default.json
+!/conf/config.default.ini
 
 /data/

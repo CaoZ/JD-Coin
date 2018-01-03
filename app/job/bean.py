@@ -12,6 +12,7 @@ class Bean(Daka):
     sign_url = 'https://vip.jd.com/common/signin.html'
     test_url = 'https://vip.jd.com/member/myJingBean/index.html'
     login_url = test_url
+    is_mobile = False
 
     def __init__(self, session):
         super().__init__(session)

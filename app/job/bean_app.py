@@ -76,7 +76,6 @@ class BeanApp(Daka):
 
     def fetch_data(self, url, payload=None):
         payload = {**payload, **self.client_info} if payload else self.client_info
-
         r = self.session.get(url, params=payload)
 
         try:
