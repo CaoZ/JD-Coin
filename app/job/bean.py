@@ -19,7 +19,7 @@ class Bean(Daka):
 
     def is_signed(self):
         page_data = self._get_page_data()
-        signed = PyQuery(page_data)('.sign-in').has_class('signed')
+        signed = '已签到' in PyQuery(page_data)('.sign-in').text()
 
         detail = self.session.get(self.info_url).json()
 
