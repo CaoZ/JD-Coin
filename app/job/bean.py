@@ -41,8 +41,9 @@ class Bean(Daka):
 
         if response['success']:
             # 签到成功, 获得若干个京豆
-            beans_get = response['result']['jdnum']
-            self.logger.info('签到成功, 获得 {} 个京豆.'.format(beans_get))
+            beans_get = response['result'].get('jdnum')
+            message = '签到成功, 获得 {} 个京豆.'.format(beans_get) if beans_get else '签到成功.'
+            self.logger.info(message)
             return True
 
         else:
