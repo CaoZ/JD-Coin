@@ -41,7 +41,9 @@ class Bean(Daka):
 
         if response['success']:
             # 签到成功, 获得若干个京豆
-            beans_get = response['result']['jdnum']
+            # beans_get = response['result']['jdnum']
+            # 似乎目前success时result里为空
+            beans_get = response['result']
             self.logger.info('签到成功, 获得 {} 个京豆.'.format(beans_get))
             return True
 
