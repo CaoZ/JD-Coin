@@ -119,6 +119,8 @@ class MobileBrowser(QWebEngineView):
         if code:
             code = code.format_map(config.jd)
             self.page().runJavaScript(code)
+            # 登录完成后关闭窗口，防止窗口阻塞主进程
+            self.loadFinished.connect(lambda x: self.close())
 
 
 def get_cookies(url):
