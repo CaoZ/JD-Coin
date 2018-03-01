@@ -12,9 +12,9 @@ from .data_station import DataStation
 
 __all__ = ['jobs_all', 'logger']
 
-jobs_mobile = [DakaApp, BeanApp, DoubleSign, DataStation]
+jobs_mobile = [DakaApp, BeanApp, DataStation]
 jobs_web = [Bean, SignJR]
-jobs_all = jobs_mobile + jobs_web
+jobs_all = jobs_mobile + jobs_web + [DoubleSign]
 
 
 def set_logger():
