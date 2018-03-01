@@ -5,7 +5,7 @@ logger = logging.getLogger('jobs')
 from config import config
 from .bean import Bean
 from .bean_app import BeanApp
-from .bean_jr import SignJR
+from .sign_jr import SignJR
 from .daka_app import DakaApp
 from .double_sign import DoubleSign
 from .data_station import DataStation
