@@ -49,14 +49,14 @@ class BeanApp(Daka):
         message = message.replace('signAward', data['signShowBean']['signAward'])
         self.logger.info('签到成功: {}; Message: {}'.format(sign_success, message))
 
-        poker = data['signShowBean']
-        # "complated": 原文如此, 服务端的拼写错误...
-        poker_picked = poker['complated']
+        if 'awardList' in data['signShowBean']:
+            # "complated": 原文如此, 服务端的拼写错误...
+            poker_picked = data['signShowBean']['complated']
 
-        if not poker_picked:
-            pick_success = self.pick_poker(poker)
-            # 同时成功才视为签到成功
-            sign_success &= pick_success
+            if not poker_picked:
+                pick_success = self.pick_poker(data['signShowBean'])
+                # 同时成功才视为签到成功
+                sign_success &= pick_success
 
         return sign_success
 
