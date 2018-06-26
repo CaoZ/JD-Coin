@@ -1,6 +1,6 @@
 from pyquery import PyQuery
+from requests import HTTPError, ReadTimeout
 
-from . import common
 from .daka import Daka
 
 
@@ -9,7 +9,7 @@ class Bean(Daka):
 
     index_url = 'https://vip.jd.com'
     info_url = 'https://vip.jd.com/member/getUserInfo.html'
-    sign_url = 'https://vip.jd.com/common/signin.html'
+    sign_url = 'https://vip.jd.com/sign/index'
     test_url = 'https://vip.jd.com/member/myJingBean/index.html'
     login_url = test_url
 
@@ -34,33 +34,17 @@ class Bean(Daka):
         return signed
 
     def sign(self):
-        token = self._get_token()
-        payload = {'token': token}
+        try:
+            r = self.session.get(self.sign_url, timeout=10)
+            r.raise_for_status()
 
-        response = self.session.get(self.sign_url, params=payload).json()
+            sign_message = PyQuery(r.text)('.day-info.active .title').text()
+            self.logger.info(sign_message)
+            return True  # 似乎没有签到失败的情况，暂且认为签到成功
 
-        if response['success']:
-            # 签到成功, 获得若干个京豆
-            beans_get = response['result'].get('jdnum')
-            message = '签到成功, 获得 {} 个京豆.'.format(beans_get) if beans_get else '签到成功.'
-            self.logger.info(message)
-            return True
-
-        else:
-            # 例如: 您已签到过，请勿重复签到！
-            message = response['resultTips']
-            self.logger.error('签到失败: {}'.format(message))
+        except (HTTPError, ReadTimeout) as e:
+            self.logger.error('签到失败: {}'.format(e))
             return False
-
-    def _get_token(self):
-        html = self._get_page_data()
-        pattern = r'token:\s*"(\d+)"'
-        token = common.find_value(pattern, html)
-
-        if not token:
-            raise Exception('token 未找到.')
-
-        return token
 
     def _get_page_data(self):
         if not self.page_data:
