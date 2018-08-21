@@ -39,12 +39,6 @@ class MobileBrowser(QWebEngineView):
         # 当到达 target 时自动关闭浏览器窗口
         self.target = None
 
-        self.show()
-
-        # 最前显示
-        self.raise_()
-        self.activateWindow()
-
     def config(self):
         self.page().profile().setHttpUserAgent(config.ua)
 
@@ -83,9 +77,13 @@ class MobileBrowser(QWebEngineView):
         for cookie in simple_cookie.values():
             self.cookies.set(cookie.key, cookie)
 
-    def load(self, url: QUrl):
+    def load_and_show(self, url: QUrl):
         self.target = url
         super().load(url)
+
+        self.show()
+        self.raise_()  # 最前显示
+        self.activateWindow()
 
     def load_finished(self, success):
         """
@@ -145,7 +143,7 @@ def get_cookies(url):
         APP.setWindowIcon(QIcon(icon_path))
 
     the_browser = MobileBrowser()
-    the_browser.load(QUrl(url))
+    the_browser.load_and_show(QUrl(url))
 
     if starting_up:
         # On Unix/Linux Qt is configured to use the system locale settings by default. This can cause a conflict when using POSIX functions.
