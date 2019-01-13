@@ -1,6 +1,3 @@
-import json
-import random
-
 from .common import RequestError
 from .daka import Daka
 
@@ -12,10 +9,9 @@ class BeanApp(Daka):
     job_name = '京东客户端签到领京豆'
 
     index_url = 'https://bean.m.jd.com'
-    info_url = 'https://api.m.jd.com/client.action?functionId=queryBeanIndex'
-    sign_url = 'https://api.m.jd.com/client.action?functionId=signBeanStart'
+    info_url = 'https://api.m.jd.com/client.action?functionId=findBeanIndex'
+    sign_url = 'https://api.m.jd.com/client.action?functionId=signBeanIndex'
     test_url = 'https://home.m.jd.com'
-    poker_url = 'https://api.m.jd.com/client.action?functionId=getCardResult'
 
     client_info = {
         'client': 'ld',
@@ -29,8 +25,8 @@ class BeanApp(Daka):
             self.logger.error('签到信息获取失败: {}'.format(e.message))
             return False
 
-        # 根据测试, 2 表示已签到, 4 表示未签到, 5 表示未登录
-        signed = (data['status'] == '2')
+        # 根据测试, 1 表示已签到, 2 表示未签到, 3 表示未登录
+        signed = (data['status'] == '1')
         sign_days = int(data['continuousDays'])
         beans_count = int(data['totalUserBean'])
 
@@ -45,34 +41,16 @@ class BeanApp(Daka):
             return False
 
         sign_success = (data['status'] == '1')
-        message = data['signShowBean']['signText']
-        message = message.replace('signAward', data['signShowBean']['signAward'])
+
+        if sign_success:
+            bean_count = data['dailyAward']['beanAward']['beanCount']
+            message = '获得京豆 {} 个.'.format(bean_count)
+        else:
+            message = data['dailyAward']['title']
+
         self.logger.info('签到成功: {}; Message: {}'.format(sign_success, message))
 
-        if 'awardList' in data['signShowBean']:
-            # "complated": 原文如此, 服务端的拼写错误...
-            poker_picked = data['signShowBean']['complated']
-
-            if not poker_picked:
-                pick_success = self.pick_poker(data['signShowBean'])
-                # 同时成功才视为签到成功
-                sign_success &= pick_success
-
         return sign_success
-
-    def pick_poker(self, poker):
-        poker_to_pick = random.randint(1, len(poker['awardList']))
-
-        try:
-            payload = {'body': json.dumps({'index': poker_to_pick})}
-            data = self.fetch_data(self.poker_url, payload=payload)
-        except RequestError as e:
-            self.logger.error('翻牌失败: {}'.format(e.message))
-            return False
-
-        message = data['signText'].replace('signAward', data['signAward'])
-        self.logger.info('翻牌成功: {}'.format(message))
-        return True
 
     def fetch_data(self, url, payload=None):
         payload = {**payload, **self.client_info} if payload else self.client_info

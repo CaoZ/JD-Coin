@@ -47,7 +47,7 @@ class Daka:
     def is_login(self):
         r = self.session.get(self.test_url, allow_redirects=False)
 
-        if r.is_redirect and 'passport' in r.headers['Location']:
+        if r.is_redirect and '/login' in r.headers['Location']:
             return False
         else:
             return True
