@@ -117,8 +117,13 @@ class MobileBrowser(QWebEngineView):
             $('.login-tab-r').click();
             $('#loginname').val('{username}');
             $('#nloginpwd').val('{password}');
-            $('#autoLogin').prop('checked', true);
-            if ({auto_submit}) $('#loginsubmit').click();
+
+            if ({auto_submit}) {{
+                // 等待页面相关组件加载完成，如 jdSlide 等
+                setTimeout(function() {{
+                    $('#loginsubmit').click();
+                }}, 1000);
+            }}
             """
 
         if code:
