@@ -1,4 +1,3 @@
 PyQt5==5.10.1
 pyquery
 requests
-datetime
