@@ -1,4 +1,5 @@
 import traceback
+import time
 
 from pyquery import PyQuery
 
@@ -10,7 +11,9 @@ class DoubleSign(Daka):
     job_name = '双签赢奖励'
 
     index_url = 'https://ljd.m.jd.com/countersign/index.action'
-    sign_url = 'https://ljd.m.jd.com/countersign/receiveAward.json'
+    print((int)(time.time()))
+    sign_url = 'https://ms.jr.jd.com/gw/generic/jrm/h5/m/getAwardList?_=' + \
+        str((int)(time.time()))
     test_url = index_url
 
     def is_signed(self):
@@ -37,43 +40,29 @@ class DoubleSign(Daka):
         jd_signed = document('#jdHasSign').val() == 'true'
         jr_signed = document('#jrHasSign').val() == 'true'
 
-        if not (jd_signed and jr_signed):
-            sign_success = False
-            message = '完成双签才可领取礼包'
+        # if not (jd_signed and jr_signed):
+        #     sign_success = False
+        #     message = '完成双签才可领取礼包'
 
-        else:
-            try:
-                res = self.do_sign()
-            except RequestError as e:
-                self.logger.error('双签失败: {}'.format(e.message))
-                return False
+        # else:
+        try:
+            res = self.do_sign()
+        except RequestError as e:
+            self.logger.error('双签失败: {}'.format(e.message))
+            return False
 
-            if res['code'] == '0':
-                award_data = res.get('data')
+        if res['resultCode'] == 200:
+            award_data = res.get('awardList')
 
-                if not award_data:
-                    message = '运气不佳，领到一个空空的礼包'
-
-                else:
-                    award = award_data[0]
-                    sign_success = True
-                    message = '领到 {} 个{}'.format(award['awardCount'], award['awardName'])
+            if not award_data:
+                message = '运气不佳，领到一个空空的礼包'
 
             else:
-                # 活动不定时开启，将活动时间未开始/已结束等情况都视作签到成功
-
-                if res['code'] == 'DS102':
-                    message = '来早了，活动还未开始'
-                elif res['code'] == 'DS103':
-                    message = '来晚了，活动已经结束了'
-                elif res['code'] == 'DS104':
-                    message = '运气不佳，领到一个空空的礼包'
-                elif res['code'] == 'DS106':
-                    sign_success = False
-                    message = '完成双签才可领取礼包'
-                else:
-                    sign_success = False
-                    message = '未知错误，Code={}'.format(res['code'])
+                award = award_data[0]
+                sign_success = True
+                message = '领到 {} 个{}'.format(
+                award['count'], award['name'])
+            
 
         self.logger.info('双签成功: {}; Message: {}'.format(sign_success, message))
 
@@ -84,12 +73,14 @@ class DoubleSign(Daka):
 
         try:
             as_json = r.json()
+            # print(as_json)
         except ValueError:
-            raise RequestError('unexpected response: url: {}; http code: {}'.format(self.sign_url, r.status_code), response=r)
+            raise RequestError('unexpected response: url: {}; http code: {}'.format(
+                self.sign_url, r.status_code), response=r)
 
-        if 'res' in as_json and 'code' in as_json['res']:
+        if 'resultData' in as_json and 'resultCode' in as_json['resultData']:
             # 请求成功
-            return as_json['res']
+            return as_json['resultData']
 
         else:
             error_msg = as_json.get('message') or str(as_json)
