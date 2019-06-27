@@ -11,23 +11,9 @@ class DoubleSign(Daka):
     job_name = '双签赢奖励'
 
     index_url = 'https://ljd.m.jd.com/countersign/index.action'
-    print((int)(time.time()))
     sign_url = 'https://ms.jr.jd.com/gw/generic/jrm/h5/m/getAwardList?_=' + \
         str((int)(time.time()))
     test_url = index_url
-
-    def is_signed(self):
-        signed = False
-
-        try:
-            signed = PyQuery(self.page_data())('#awardFlag').val() == '2'
-            self.logger.info('今日已双签: {}'.format(signed))
-
-        except Exception as e:
-            self.logger.error('返回数据结构可能有变化, 获取双签数据失败: {}'.format(e))
-            traceback.print_exc()
-
-        return signed
 
     def sign(self):
         # 参见 https://ljd.m.jd.com/js/countersign/countersign.js
@@ -35,38 +21,43 @@ class DoubleSign(Daka):
         sign_success = True
         message = ''
 
-        document = PyQuery(self.page_data())
+        if(self.check()):
+            try:
+                res = self.do_sign()
+            except RequestError as e:
+                self.logger.error('双签失败: {}'.format(e.message))
+                return False
 
-        jd_signed = document('#jdHasSign').val() == 'true'
-        jr_signed = document('#jrHasSign').val() == 'true'
+            if res['resultCode'] == 200:
+                award_data = res.get('awardList')
 
-        # if not (jd_signed and jr_signed):
-        #     sign_success = False
-        #     message = '完成双签才可领取礼包'
+                if not award_data:
+                    message = '运气不佳，领到一个空空的礼包'
 
-        # else:
-        try:
-            res = self.do_sign()
-        except RequestError as e:
-            self.logger.error('双签失败: {}'.format(e.message))
-            return False
-
-        if res['resultCode'] == 200:
-            award_data = res.get('awardList')
-
-            if not award_data:
-                message = '运气不佳，领到一个空空的礼包'
-
-            else:
-                award = award_data[0]
-                sign_success = True
-                message = '领到 {} 个{}'.format(
-                award['count'], award['name'])
-            
+                else:
+                    award = award_data[0]
+                    sign_success = True
+                    message = '领到 {} 个{}'.format(
+                        award['count'], award['name'])
+        else:
+            sign_success = False
+            message = '完成双签才可领取礼包'
 
         self.logger.info('双签成功: {}; Message: {}'.format(sign_success, message))
 
         return sign_success
+    # 完成双签才可访问
+    def is_signed(self):
+        checkUrl = 'https://ms.jr.jd.com/gw/generic/jrm/h5/m/signInit?_=' + \
+            str((int)(time.time()))
+        r = self.session.post(checkUrl)
+        as_json = r.json()
+        # as_json = {'resultCode': 0, 'resultMsg': '操作成功', 'resultData': {'isGet': True, 'isSignInJr': True, 'isSignInJd': True,'resultCode': 200, 'isNewUser': {'resultCode': 200, 'amount': 500, 'isNewUser': 'no', 'resultMsg': '响应成功'}, 'resultMsg': '响应成功', 'longDaySign': True}, 'channelEncrypt': 0}
+        if 'resultData' in as_json and 'resultCode' in as_json['resultData'] and as_json['resultData']['resultCode'] == 200:
+            # 请求成功
+            return as_json['resultData']['isSignInJr'] and as_json['resultData']['isSignInJd']
+
+        return False
 
     def do_sign(self):
         r = self.session.post(self.sign_url)
