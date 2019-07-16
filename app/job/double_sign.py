@@ -19,10 +19,9 @@ class DoubleSign(Daka):
     def sign(self):
         sign_success = True
         message = ''
-        if(self.is_signed()):
+        if(self.is_signed() == False):
             try:
                 res = self.do_sign()
-                print(res)
             except RequestError as e:
                 self.logger.error('双签失败: {}'.format(e.message))
                 return False
@@ -47,25 +46,25 @@ class DoubleSign(Daka):
         return sign_success
 
     def is_signed(self):
-        return False
         sign = False
         r = self.session.post(self.index_url)
         as_json = r.json()
         if 'resultData' in as_json and 'awardList' in as_json['resultData']:
             award_data = as_json['resultData'].get('awardList')
             sign = True
-            self.logger.info('今日已签到: {}; 双签奖励: {}'.format(sign, award_data[0]['count']))
+            self.logger.info('今日已签到: {}; 双签奖励: {}'.format(
+                sign, award_data[0]['count']))
             return sign
-        return sign
+        return False
 
     def do_sign(self):
         r = self.session.post(self.sign_url)
 
         try:
             as_json = r.json()
-            #{'resultCode': 0, 'resultMsg': '操作成功',
+            # {'resultCode': 0, 'resultMsg': '操作成功',
             #  'resultData': {'resultCode': 200, '
-            #                   resultMsg': '响应成功', 
+            #                   resultMsg': '响应成功',
             #                   'status': 0, 'awardList': [
             #                                       {'count': 5, 'name': '京豆', 'type': 1}]},
             #                                        'channelEncrypt': 0}
