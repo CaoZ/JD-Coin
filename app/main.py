@@ -48,7 +48,11 @@ def make_session() -> requests.Session:
         'User-Agent': config.ua
     })
 
-    data_file = Path(__file__).parent.joinpath('../data/cookies')
+    # 根据配置文件名找对应cookie
+    if(config.name != ''):
+        data_file = Path(__file__).parent.joinpath('../data/cookies' + config.name)
+    else:
+        data_file = Path(__file__).parent.joinpath('../data/cookies')
 
     if data_file.exists():
         try:
@@ -67,7 +71,13 @@ def save_session(session):
 
     data_dir = Path(__file__).parent.joinpath('../data/')
     data_dir.mkdir(exist_ok=True)
-    data_file = data_dir.joinpath('cookies')
+
+    # 根据配置文件名取对应cookie
+    if (config.name != ''):
+        data_file = data_dir.joinpath('cookies' + config.name)
+    else:
+        data_file = data_dir.joinpath('cookies')
+
     data_file.write_bytes(data)
 
 

@@ -21,9 +21,10 @@ class Config:
         }
 
         self.jobs_skip = []
+        self.name = ''
 
     @classmethod
-    def load(cls, d):
+    def load(cls, d,file_name):
         the_config = Config()
 
         the_config.debug = d.get('debug', False)
@@ -46,6 +47,8 @@ class Config:
             the_config.jd['auto_submit'] = 1
 
         the_config.jobs_skip = d.get('jobs_skip', [])
+
+        the_config.name = file_name.split('.', 1)[0]
 
         return the_config
 
@@ -74,7 +77,8 @@ def load_config():
     except Exception as e:
         sys.exit('# 错误: 配置文件载入失败: {}'.format(e))
 
-    the_config = Config.load(config_dict)
+    # 读取配置时传入配置文件名
+    the_config = Config.load(config_dict,config_name)
 
     return the_config
 
